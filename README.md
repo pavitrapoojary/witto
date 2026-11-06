@@ -1,15 +1,6 @@
 <p align="center">
-  <img src="assets/mascot.png" alt="WITTO Autonomous AI Assistant" width="160" />
+  <img src="assets/witto-readme.png" alt="WITTO — Multi-Agent Product Intelligence for Jira &amp; Confluence" width="850" style="max-width: 100%; height: auto;" />
 </p>
-
-```
-  ██╗    ██╗██╗████████╗████████╗ ██████╗ 
-  ██║    ██║██║╚══██╔══╝╚══██╔══╝██╔═══██╗
-  ██║ █╗ ██║██║   ██║      ██║   ██║   ██║
-  ██║███╗██║██║   ██║      ██║   ██║   ██║
-  ╚███╔███╔╝██║   ██║      ██║   ╚██████╔╝
-   ╚══╝╚══╝ ╚═╝   ╚═╝      ╚═╝    ╚═════╝ 
-```
 
 ### Multi-Agent Product Intelligence & Autonomous Traceability for Jira & Confluence
 
