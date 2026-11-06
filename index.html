@@ -1,0 +1,2210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>WITTO — Multi-Agent Product Intelligence for Jira &amp; Confluence</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            canvas: '#F9FAFB',
+            card: '#FFFFFF',
+            borderSubtle: '#E2E5EA',
+            borderStrong: '#D0D5DD',
+            textPrimary: '#172B4D',
+            textSecondary: '#44546F',
+            textMuted: '#626F86',
+            brandPurple: '#6E5DC6',
+            brandPurpleDark: '#5542B0',
+            brandPurpleLight: '#F3F0FF',
+            atlassianBlue: '#0C66E4',
+            atlassianBlueDark: '#0052CC',
+            atlassianBlueLight: '#E9F2FF',
+            tealSuccess: '#1F845A',
+            tealLight: '#E3FCEF',
+            amberNotice: '#FF8B00',
+            amberLight: '#FFF8E6',
+            roseAlert: '#E5493A',
+            roseLight: '#FFEBE6'
+          },
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['JetBrains Mono', 'SFMono-Regular', 'Menlo', 'Monaco', 'monospace']
+          },
+          boxShadow: {
+            subtle: '0 1px 3px rgba(9, 30, 66, 0.04), 0 1px 1px rgba(9, 30, 66, 0.03)',
+            elevated: '0 4px 14px rgba(9, 30, 66, 0.08), 0 1px 3px rgba(9, 30, 66, 0.04)',
+            floating: '0 12px 36px rgba(9, 30, 66, 0.12), 0 3px 8px rgba(9, 30, 66, 0.05)'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #F9FAFB; }
+    ::-webkit-scrollbar-thumb { background: #D0D5DD; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #98A2B3; }
+
+    /* Target spotlight beacon */
+    .walkme-target-spotlight {
+      position: relative !important;
+      z-index: 35 !important;
+      outline: 2px solid #6E5DC6 !important;
+      outline-offset: 3px !important;
+      box-shadow: 0 0 0 6px rgba(110, 93, 198, 0.25) !important;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+
+    @keyframes radar-ping {
+      0% { box-shadow: 0 0 0 0 rgba(110, 93, 198, 0.6); }
+      70% { box-shadow: 0 0 0 14px rgba(110, 93, 198, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(110, 93, 198, 0); }
+    }
+    .radar-pulse {
+      animation: radar-ping 1.8s infinite cubic-bezier(0.24, 0, 0.38, 1);
+    }
+
+    /* Drag and drop active states */
+    .drag-card.dragging {
+      opacity: 0.35;
+      background: #F4F5F7 !important;
+      border: 2px dashed #6E5DC6 !important;
+    }
+    .quadrant-dropzone.drag-hover {
+      background: #F3F0FF !important;
+      border-color: #6E5DC6 !important;
+      outline: 2px dashed #6E5DC6;
+    }
+
+    /* Sprint drag and drop reordering */
+    .sprint-drag-item {
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .sprint-drag-item.dragging {
+      opacity: 0.35;
+      background: #F3F0FF !important;
+      border: 2px dashed #6E5DC6 !important;
+    }
+    .sprint-drag-item.drag-over-top {
+      border-top: 3px solid #6E5DC6 !important;
+    }
+    .sprint-drag-item.drag-over-bottom {
+      border-bottom: 3px solid #6E5DC6 !important;
+    }
+    .drag-handle {
+      cursor: grab;
+    }
+    .drag-handle:active {
+      cursor: grabbing;
+    }
+
+    #confettiCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body class="bg-canvas text-textPrimary antialiased min-h-screen flex flex-col font-sans selection:bg-brandPurpleLight selection:text-brandPurple">
+
+  <canvas id="confettiCanvas"></canvas>
+
+  <!-- ======================================================================
+       VIEW 1: REFINED LINEAR X ATLASSIAN RESEARCH LANDING PAGE
+       ====================================================================== -->
+  <div id="landingView" class="flex-1 flex flex-col transition-opacity duration-300">
+    
+    <!-- Top Brand Header -->
+    <header class="w-full border-b border-borderSubtle bg-white/80 backdrop-blur-md sticky top-0 z-30">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-white border border-borderSubtle shadow-subtle flex items-center justify-center p-1.5">
+            <!-- Single faceted hexagonal AI crest -->
+            <svg class="w-full h-full" viewBox="0 0 32 32" fill="none">
+              <polygon points="16 3, 27 9, 16 16, 5 9" fill="#6E5DC6" opacity="0.95"/>
+              <polygon points="27 9, 27 23, 16 29, 16 16" fill="#5243AA" opacity="0.9"/>
+              <polygon points="5 9, 16 16, 16 29, 5 23" fill="#00A3BF" opacity="0.85"/>
+              <circle cx="16" cy="16" r="2.5" fill="#FFFFFF"/>
+            </svg>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-base tracking-tight text-textPrimary">WITTO</span>
+            <span class="text-[11px] font-mono text-textMuted bg-canvas border border-borderSubtle px-2 py-0.5 rounded-md">Product Intelligence</span>
+          </div>
+        </div>
+
+        <div class="hidden md:flex items-center gap-2 px-3 py-1 bg-[#F4F5F7] border border-borderSubtle rounded-full text-xs text-textSecondary">
+          <span class="w-2 h-2 rounded-full bg-tealSuccess animate-pulse"></span>
+          <span class="font-medium">Empirical Research Prototype</span>
+          <span class="text-textMuted">•</span>
+          <span class="text-textMuted">Qualitative Study</span>
+        </div>
+
+        <div class="flex items-center gap-3 text-xs font-medium">
+          <a href="#researchAttribution" class="hidden sm:block text-textMuted hover:text-textPrimary transition-colors">Squad &amp; Credits</a>
+          <button onclick="launchScenario(1)" class="px-3.5 py-1.5 rounded-lg bg-[#172B4D] hover:bg-[#091E42] text-white font-medium text-xs shadow-subtle hover:shadow-elevated transition-all flex items-center gap-1.5">
+            <span>Explore Prototype</span>
+            <span>→</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Content -->
+    <main class="flex-1 max-w-5xl mx-auto px-4 sm:px-6 pt-12 pb-16 flex flex-col items-center text-center">
+      
+      <!-- Understated Tag -->
+      <div class="inline-flex items-center gap-2 px-3 py-1 bg-white border border-borderSubtle rounded-full text-xs text-textSecondary shadow-subtle mb-6">
+        <span class="w-1.5 h-1.5 rounded-full bg-brandPurple"></span>
+        <span class="font-semibold text-textPrimary">Interactive Research Prototype</span>
+        <span class="text-borderStrong">•</span>
+        <span class="text-textMuted">Qualitative User Study</span>
+      </div>
+
+      <!-- Human Headline -->
+      <h1 class="text-3xl sm:text-5xl font-bold tracking-tight text-textPrimary leading-[1.16] max-w-3xl mb-5">
+        Requirements change. <br class="hidden sm:block"/>
+        <span class="text-[#253858]">Should your entire team have to chase them?</span>
+      </h1>
+
+      <!-- Supporting Value Prop -->
+      <p class="text-base sm:text-lg text-textSecondary max-w-2xl leading-relaxed mb-10 font-normal">
+        Meet <strong>WITTO</strong> — a smarter way to connect product decisions, requirements, and delivery. Explore what happens when a change in Confluence can make sense across your Jira workspace.
+      </p>
+
+      <!-- DUAL SCENARIO SELECTOR CARDS -->
+      <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-5 text-left mb-14">
+        
+        <!-- Scenario 1 Card -->
+        <div onclick="launchScenario(1)" class="bg-white border-2 border-borderSubtle hover:border-brandPurple rounded-2xl p-6 transition-all hover:shadow-floating cursor-pointer flex flex-col justify-between group relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-24 h-24 bg-purple-50 rounded-full blur-2xl -mr-6 -mt-6"></div>
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-brandPurple bg-purple-50 px-2 py-0.5 rounded border border-purple-200">Scenario 1</span>
+              <span class="text-xs text-textMuted flex items-center gap-1 font-medium">Sprint 14 Active</span>
+            </div>
+            <h3 class="text-lg font-bold text-textPrimary group-hover:text-brandPurple transition-colors mb-1.5">
+              Sprint Agility &amp; Requirement Delta
+            </h3>
+            <p class="text-xs text-textSecondary leading-relaxed mb-4">
+              A mid-sprint requirement change in Confluence (FR-3 payment retries) breaks completed stories, collides with open bugs, and re-ranks the sprint inside a 30-pt capacity cutoff.
+            </p>
+            <div class="space-y-1.5 text-[11px] text-textMuted font-medium">
+              <div class="flex items-center gap-1.5">
+                <span class="text-tealSuccess">✓</span> <span>Automated Done-story impact scan (APX-103/102/105)</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-tealSuccess">✓</span> <span>Bug clash alerts + Drag-and-drop RICE re-rank</span>
+              </div>
+            </div>
+          </div>
+          <div class="pt-4 mt-4 border-t border-borderSubtle flex items-center justify-between text-xs font-semibold text-brandPurple">
+            <span>Explore Scenario 1</span>
+            <span class="group-hover:translate-x-1 transition-transform">→</span>
+          </div>
+        </div>
+
+        <!-- Scenario 2 Card -->
+        <div onclick="launchScenario(2)" class="bg-white border-2 border-borderSubtle hover:border-atlassianBlue rounded-2xl p-6 transition-all hover:shadow-floating cursor-pointer flex flex-col justify-between group relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-full blur-2xl -mr-6 -mt-6"></div>
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-atlassianBlue bg-blue-50 px-2 py-0.5 rounded border border-blue-200">Scenario 2 &middot; Strategic</span>
+              <span class="text-xs text-textMuted flex items-center gap-1 font-medium">New PRD Drafting</span>
+            </div>
+            <h3 class="text-lg font-bold text-textPrimary group-hover:text-atlassianBlue transition-colors mb-1.5">
+              Strategic Roadmap &amp; Portfolio Intelligence
+            </h3>
+            <p class="text-xs text-textSecondary leading-relaxed mb-4">
+              Create a new Confluence PRD with 8 candidate initiatives. Then let WITTO synthesize company scale (Series C, 240 engineers) and regulatory mandates (RBI DPDP Act) into an interactive 2x2 matrix and Jira Epics.
+            </p>
+            <div class="space-y-1.5 text-[11px] text-textMuted font-medium">
+              <div class="flex items-center gap-1.5">
+                <span class="text-atlassianBlue">✦</span> <span>Clean standard PRD drafting first &rarr; then AI synthesis</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-atlassianBlue">✦</span> <span>Interactive 2x2 Matrix, MoSCoW, RICE &amp; Jira Roadmap sync</span>
+              </div>
+            </div>
+          </div>
+          <div class="pt-4 mt-4 border-t border-borderSubtle flex items-center justify-between text-xs font-semibold text-atlassianBlue">
+            <span>Explore Scenario 2</span>
+            <span class="group-hover:translate-x-1 transition-transform">→</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Micro Visual Flow Preview -->
+      <div class="w-full bg-white border border-borderSubtle rounded-xl p-4 sm:p-5 text-left mb-16 shadow-subtle">
+        <div class="flex items-center justify-between mb-3 text-xs">
+          <span class="font-bold uppercase tracking-wider text-textMuted">End-to-End Traceability Engine</span>
+          <span class="text-textMuted font-mono text-[11px]">Confluence PRD &harr; WITTO Dual-Agent &harr; Jira Software</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-textSecondary">
+          <div class="p-3 bg-canvas rounded-lg border border-borderSubtle">
+            <span class="font-bold text-atlassianBlue block mb-1">1. Confluence Source</span>
+            Numbered requirements guarantee that product features have clear identities before code is built.
+          </div>
+          <div class="p-3 bg-purple-50/60 rounded-lg border border-purple-200">
+            <span class="font-bold text-brandPurple block mb-1">2. WITTO Multi-Agent Hub</span>
+            Creator Agent drafts tickets, Validator checks 8-point criteria, and Impact Analyzer surfaces broken Done stories.
+          </div>
+          <div class="p-3 bg-canvas rounded-lg border border-borderSubtle">
+            <span class="font-bold text-tealSuccess block mb-1">3. Jira Delivery &amp; Roadmap</span>
+            Dynamically prioritized delivery with locked in-progress work and PM decisions preserved in an audit log.
+          </div>
+        </div>
+      </div>
+
+      <!-- DISCREET RESEARCH ATTRIBUTION FOOTER -->
+      <footer id="researchAttribution" class="w-full pt-8 border-t border-borderSubtle text-left text-xs">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8 pb-8">
+          <div class="md:col-span-5 space-y-2">
+            <h4 class="font-bold text-textPrimary uppercase tracking-wider text-[11px]">Research Scope</h4>
+            <p class="text-textSecondary leading-relaxed">
+              Conducted as an Empirical Research Project studying multi-agent requirement conversion, traceability enforcement, and dynamic backlog reprioritization within modern agile squads.
+            </p>
+            <div class="text-[11px] text-textMuted">
+              Evaluated against authentic Atlassian design patterns with simulated enterprise fintech data (<em>ApexPay Enterprise</em>).
+            </div>
+          </div>
+
+          <div class="md:col-span-4 space-y-2">
+            <h4 class="font-bold text-textPrimary uppercase tracking-wider text-[11px]">The "Great Lakers" Squad</h4>
+            <div class="bg-white border border-borderSubtle rounded-lg p-2.5 space-y-1.5 text-[11px]">
+              <div class="flex justify-between items-center">
+                <span><strong>Haripriya M</strong></span>
+                <span class="text-textMuted">Tech Lead</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span><strong>Pavitra Poojary</strong></span>
+                <span class="text-textMuted">Senior UI Designer</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span><strong>Jean Roderick A</strong></span>
+                <span class="text-textMuted">Senior Backend Engineer</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="md:col-span-3 space-y-2">
+            <h4 class="font-bold text-textPrimary uppercase tracking-wider text-[11px]">Academic Affiliation</h4>
+            <div class="text-textSecondary text-[11px] space-y-1">
+              <div class="font-semibold text-textPrimary">Great Lakes Institute of Management</div>
+              <div class="text-textMuted">Chennai, India &middot; PGPM Class of 2027</div>
+              <div class="pt-1.5 border-t border-borderSubtle text-textSecondary">
+                Mentored by: <strong class="text-textPrimary">Prof. Vivek N.</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-borderSubtle pt-4 pb-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-textMuted gap-2">
+          <span>Independent academic concept prototype. Visual patterns inspired by Atlassian Jira &amp; Confluence.</span>
+          <span>&copy; 2027 Great Lakers Research Team</span>
+        </div>
+      </footer>
+
+    </main>
+
+  </div>
+
+  <!-- ======================================================================
+       WORKSPACE LOADING SIMULATION OVERLAY
+       ====================================================================== -->
+  <div id="workspaceLoader" class="fixed inset-0 bg-white/95 backdrop-blur-md z-50 hidden flex-col items-center justify-center p-6 text-center">
+    <div class="w-14 h-14 rounded-2xl bg-white border border-borderSubtle shadow-elevated flex items-center justify-center p-3 mb-4">
+      <svg class="w-full h-full animate-spin text-brandPurple" viewBox="0 0 32 32" fill="none">
+        <polygon points="16 3, 27 9, 16 16, 5 9" fill="#6E5DC6" opacity="0.95"/>
+        <polygon points="27 9, 27 23, 16 29, 16 16" fill="#5243AA" opacity="0.9"/>
+        <polygon points="5 9, 16 16, 16 29, 5 23" fill="#00A3BF" opacity="0.85"/>
+      </svg>
+    </div>
+    <h3 id="loaderTitle" class="text-base font-bold text-textPrimary mb-1">Loading ApexPay Workspace...</h3>
+    <p id="loaderSubtitle" class="text-xs text-textMuted font-mono">Connecting Atlassian Jira &amp; Confluence...</p>
+    <div class="w-48 h-1.5 bg-[#F4F5F7] rounded-full overflow-hidden border border-borderSubtle mt-3">
+      <div id="loaderProgressBar" class="h-full bg-gradient-to-r from-atlassianBlue via-brandPurple to-tealSuccess w-0 transition-all duration-200"></div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       VIEW 2: THE COMPLETE ATLASSIAN PROTOTYPE WORKSPACE
+       ====================================================================== -->
+  <div id="prototypeView" class="hidden flex-1 flex-col h-screen overflow-hidden bg-white">
+    
+    <!-- TOP NAVIGATION BAR -->
+    <header class="h-12 border-b border-[#DCDFE4] bg-white flex items-center justify-between px-3 z-30 shrink-0">
+      <div class="flex items-center gap-2 h-full">
+        <!-- Return to Landing -->
+        <button onclick="returnToLanding()" class="px-2 py-1 text-xs font-semibold text-textSecondary hover:text-textPrimary hover:bg-[#091E420F] rounded flex items-center gap-1 transition-colors" title="Return to Scenario Selection">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+          <span class="hidden sm:inline">Overview</span>
+        </button>
+
+        <!-- Atlassian Logo & 9-dot Waffle -->
+        <div class="flex items-center gap-2 pr-3 border-r border-[#DCDFE4] h-6">
+          <button class="p-1 hover:bg-[#091E420F] rounded text-[#626F86]">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="5" cy="5" r="2"></circle><circle cx="12" cy="5" r="2"></circle><circle cx="19" cy="5" r="2"></circle>
+              <circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle>
+              <circle cx="5" cy="19" r="2"></circle><circle cx="12" cy="19" r="2"></circle><circle cx="19" cy="19" r="2"></circle>
+            </svg>
+          </button>
+          <div class="flex items-center gap-1.5 cursor-pointer">
+            <svg class="w-4 h-4" viewBox="0 0 32 32" fill="none">
+              <path d="M12.87 18.33C12.35 17.58 11.23 18.06 11.39 18.96L14.28 29.58C14.47 30.29 15.42 30.43 15.82 29.8L21.37 20.89C21.84 20.14 21.32 19.16 20.44 19.16H13.62C13.31 19.16 13.02 18.54 12.87 18.33Z" fill="#0C66E4"/>
+              <path d="M16.51 3.52C16.14 2.8 15.08 2.85 14.78 3.6L9.34 16.7C9.02 17.47 9.69 18.29 10.51 18.17L19.26 16.92C20.08 16.8 20.49 15.84 19.98 15.2L16.51 3.52Z" fill="#0052CC"/>
+            </svg>
+            <span class="font-extrabold text-[14px] tracking-tight text-[#172B4D]">Atlassian</span>
+          </div>
+        </div>
+
+        <!-- Jira / Confluence App Switcher -->
+        <div class="flex items-center bg-[#F1F2F4] p-0.5 rounded-lg border border-[#DCDFE4]">
+          <button id="navTabJira" onclick="switchApp('jira')" class="px-2.5 py-1 text-xs font-bold rounded bg-white text-[#0C66E4] shadow-xs flex items-center gap-1.5 transition-all">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4 14h6l-2 8 10-12h-6l2-8z"/></svg>
+            Jira
+          </button>
+          <button id="navTabConfluence" onclick="switchApp('confluence')" class="px-2.5 py-1 text-xs font-semibold rounded text-[#626F86] hover:text-[#172B4D] flex items-center gap-1.5 transition-all">
+            <svg class="w-3.5 h-3.5 text-[#0C66E4]" viewBox="0 0 24 24" fill="currentColor"><path d="M14.5 10c-.83 0-1.5.67-1.5 1.5v5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5c0-.83-.67-1.5-1.5-1.5zm-5 0c-.83 0-1.5.67-1.5 1.5v5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5c0-.83-.67-1.5-1.5-1.5z"/></svg>
+            Confluence
+          </button>
+        </div>
+
+        <!-- SCENARIO SWITCHER PILL IN TOP BAR -->
+        <div class="hidden sm:flex items-center gap-1 ml-2 bg-purple-50/70 border border-purple-200 rounded-lg p-0.5 text-xs">
+          <span class="text-[10px] uppercase font-bold text-purple-700 px-1.5">Scenario:</span>
+          <button id="scenarioBtn1" onclick="switchScenario(1)" class="px-2 py-0.5 rounded text-[11px] font-bold bg-[#6E5DC6] text-white shadow-xs">
+            1 &middot; Sprint Delta
+          </button>
+          <button id="scenarioBtn2" onclick="switchScenario(2)" class="px-2 py-0.5 rounded text-[11px] font-medium text-purple-900 hover:bg-purple-100">
+            2 &middot; Strategic Roadmap
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Controls: WITTO AI Button & User Avatar -->
+      <div class="flex items-center gap-2">
+        <button id="topWittoTrigger" onclick="openWittoDrawer()" class="flex items-center gap-1.5 bg-[#6E5DC6] hover:bg-[#5B47B8] text-white text-xs font-semibold px-3 py-1.5 rounded-md shadow-xs transition-all">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
+            <polygon points="12 2, 21 7.5, 21 16.5, 12 22, 3 16.5, 3 7.5" stroke="white" stroke-width="2"/>
+            <circle cx="12" cy="12" r="2.8" fill="#00C7E6"/>
+          </svg>
+          <span>WITTO AI</span>
+        </button>
+
+        <!-- PM Avatar -->
+        <div class="flex items-center gap-1.5 pl-2 border-l border-[#DCDFE4]" title="Ananya Iyer (Lead PM)">
+          <div class="w-7 h-7 rounded-full bg-purple-100 ring-2 ring-purple-400 overflow-hidden flex items-center justify-center">
+            <svg class="w-full h-full" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#FFF1F2"/><path d="M50 20 C38 20, 30 30, 30 45 C30 56, 38 64, 50 64 C62 64, 70 56, 70 45 C70 30, 62 20, 50 20 Z" fill="#9F1239"/><circle cx="50" cy="48" r="16" fill="#FCD34D"/><path d="M22 92 C22 72, 34 68, 50 68 C66 68, 78 72, 78 92 Z" fill="#E11D48"/></svg>
+          </div>
+          <span class="hidden md:inline text-xs font-semibold text-[#172B4D]">Ananya (PM)</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- WORKSPACE BODY (SIDEBAR + MAIN CANVAS) -->
+    <div class="flex-1 flex overflow-hidden">
+      
+      <!-- JIRA/CONFLUENCE SIDEBAR -->
+      <aside class="w-60 bg-[#FAFBFC] border-r border-[#DCDFE4] flex flex-col shrink-0 select-none">
+        <div class="p-3 border-b border-[#DCDFE4] flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#0C66E4] to-[#6E5DC6] flex items-center justify-center text-white font-extrabold text-xs shadow-xs">
+            APX
+          </div>
+          <div class="min-w-0 flex-1">
+            <h2 class="text-xs font-bold text-[#172B4D] truncate leading-tight">ApexPay Enterprise</h2>
+            <p class="text-[10px] text-[#626F86] truncate">Fintech Payments Core &middot; Scrum</p>
+          </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-2 py-3 space-y-4 text-xs">
+          <!-- Views Section -->
+          <div>
+            <div class="px-2 mb-1 text-[10px] font-bold uppercase tracking-wider text-[#626F86]">Planning Views</div>
+            <nav class="space-y-0.5">
+              <button id="sideNavBoard" onclick="switchView('board')" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded font-semibold text-[#0C66E4] bg-[#E9F2FF] border-l-4 border-[#0C66E4]">
+                <svg class="w-3.5 h-3.5 text-[#0C66E4]" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="5" height="18" rx="1.5"/><rect x="10" y="3" width="5" height="11" rx="1.5"/><rect x="17" y="3" width="5" height="14" rx="1.5"/></svg>
+                <span>Scrum Board (Sprint 14)</span>
+              </button>
+              <button id="sideNavBacklog" onclick="switchView('backlog')" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded font-medium text-[#44546F] hover:bg-[#091E420F]">
+                <svg class="w-3.5 h-3.5 text-[#626F86]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line></svg>
+                <span>Backlog &amp; Slipped Scope</span>
+              </button>
+              <button id="sideNavRoadmap" onclick="switchView('roadmap')" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded font-medium text-[#44546F] hover:bg-[#091E420F]">
+                <svg class="w-3.5 h-3.5 text-[#626F86]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                <span>Jira Roadmap (Epics Q1-Q4)</span>
+              </button>
+              <button id="sideNavLog" onclick="switchView('log')" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded font-medium text-[#44546F] hover:bg-[#091E420F]">
+                <svg class="w-3.5 h-3.5 text-[#626F86]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <span>Decision Audit Log</span>
+              </button>
+            </nav>
+          </div>
+
+          <!-- Confluence PRD Documents -->
+          <div>
+            <div class="px-2 mb-1 text-[10px] font-bold uppercase tracking-wider text-[#626F86]">Confluence PRDs</div>
+            <nav class="space-y-0.5">
+              <button id="sideNavPrdSprint" onclick="switchView('confluence_sprint')" class="w-full flex items-center gap-2 px-2 py-1.5 rounded text-[#44546F] hover:bg-[#091E420F] text-left truncate">
+                <svg class="w-3.5 h-3.5 text-[#0C66E4] shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                <span class="truncate">PRD: Core Payment Retries</span>
+              </button>
+              <button id="sideNavPrdRoadmap" onclick="switchView('confluence_roadmap')" class="w-full flex items-center gap-2 px-2 py-1.5 rounded text-[#44546F] hover:bg-[#091E420F] text-left truncate">
+                <svg class="w-3.5 h-3.5 text-[#6E5DC6] shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                <span class="truncate">PRD: Strategic Annual Roadmap</span>
+              </button>
+            </nav>
+          </div>
+
+          <!-- The Great Lakers Squad -->
+          <div class="pt-2 border-t border-[#DCDFE4]">
+            <div class="px-2 mb-1.5 flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-[#172B4D] flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Great Lakers Squad
+              </span>
+              <span class="text-[9px] bg-emerald-50 text-emerald-800 font-bold px-1 rounded">GLIM '27</span>
+            </div>
+            <div class="space-y-1 px-1 text-[11px]">
+              <div class="flex items-center gap-2 p-1 rounded bg-white border border-[#DCDFE4]/60">
+                <div class="w-5 h-5 rounded-full bg-purple-100 overflow-hidden shrink-0"><svg class="w-full h-full" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#F3F0FF"/><path d="M50 20 C35 20, 30 30, 30 45 C30 58, 36 64, 50 64 C64 64, 70 58, 70 45 C70 30, 65 20, 50 20 Z" fill="#312E81"/><circle cx="50" cy="48" r="16" fill="#FCD34D"/><path d="M22 92 C22 72, 34 68, 50 68 C66 68, 78 72, 78 92 Z" fill="#4F46E5"/></svg></div>
+                <span class="font-bold text-[#172B4D] truncate">Haripriya M</span>
+                <span class="text-[9px] text-purple-700 font-bold ml-auto bg-purple-50 px-1 rounded">TL</span>
+              </div>
+              <div class="flex items-center gap-2 p-1 rounded bg-white border border-[#DCDFE4]/60">
+                <div class="w-5 h-5 rounded-full bg-emerald-100 overflow-hidden shrink-0"><svg class="w-full h-full" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#ECFDF5"/><path d="M50 20 C34 20, 28 32, 28 48 C28 60, 36 66, 50 66 C64 66, 72 60, 72 48 C72 32, 66 20, 50 20 Z" fill="#047857"/><circle cx="50" cy="48" r="16" fill="#FBBF24"/><path d="M22 92 C22 70, 34 68, 50 68 C66 68, 78 70, 78 92 Z" fill="#059669"/></svg></div>
+                <span class="font-medium text-[#172B4D] truncate">Pavitra Poojary</span>
+                <span class="text-[9px] text-emerald-800 font-bold ml-auto bg-emerald-50 px-1 rounded">UI</span>
+              </div>
+              <div class="flex items-center gap-2 p-1 rounded bg-white border border-[#DCDFE4]/60">
+                <div class="w-5 h-5 rounded-full bg-blue-100 overflow-hidden shrink-0"><svg class="w-full h-full" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#EFF6FF"/><path d="M50 22 C36 22, 32 30, 32 44 C32 48, 33 58, 50 58 C67 58, 68 48, 68 44 C68 30, 64 22, 50 22 Z" fill="#1E293B"/><circle cx="50" cy="48" r="16" fill="#FCD34D"/><path d="M22 92 C22 72, 34 68, 50 68 C66 68, 78 72, 78 92 Z" fill="#2563EB"/></svg></div>
+                <span class="font-medium text-[#172B4D] truncate">Jean Roderick A</span>
+                <span class="text-[9px] text-blue-700 font-bold ml-auto bg-blue-50 px-1 rounded">BE</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-2.5 border-t border-[#DCDFE4] text-[10px] text-[#626F86] bg-white">
+          Empirical Research Mentorship &middot; Prof. Vivek N.
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT VIEWPORT -->
+      <main id="prototypeCanvas" class="flex-1 overflow-y-auto bg-white p-6 relative min-w-0">
+        <!-- Injected dynamically via renderActiveView() -->
+      </main>
+
+    </div>
+
+    <!-- ======================================================================
+         RE-ENGINEERED SMART NON-BLOCKING WALKME COMPANION
+         ====================================================================== -->
+    <div id="walkmeContainer" class="fixed z-40 transition-all duration-300 pointer-events-none select-none" style="bottom: 24px; right: 24px;">
+      
+      <!-- Expanded Companion Card -->
+      <div id="walkmeCard" class="w-88 max-w-[360px] bg-white/95 backdrop-blur-md border border-[#6E5DC6] rounded-2xl shadow-floating p-4 flex flex-col pointer-events-auto transition-all">
+        
+        <!-- Header with Draggable Handle & Position Controls -->
+        <div id="walkmeHeader" class="flex items-center justify-between pb-2 mb-2 border-b border-[#DCDFE4] cursor-grab active:cursor-grabbing">
+          <div class="flex items-center gap-2">
+            <!-- Animated Mascot Robot Avatar -->
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#6E5DC6] to-[#0C66E4] p-1 flex items-center justify-center shadow-xs shrink-0">
+              <svg class="w-full h-full" viewBox="0 0 32 32" fill="none">
+                <circle cx="16" cy="4" r="2" fill="#00C7E6"/>
+                <line x1="16" y1="4" x2="16" y2="9" stroke="white" stroke-width="1.5"/>
+                <rect x="5" y="9" width="22" height="18" rx="5" fill="#172B4D"/>
+                <circle cx="11" cy="17" r="2" fill="#00C7E6"/>
+                <circle cx="21" cy="17" r="2" fill="#00C7E6"/>
+                <path d="M12 22 Q16 25 20 22" stroke="#00C7E6" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-bold text-[#6E5DC6]">WITTO Guide</span>
+                <span id="walkmeScenarioTag" class="text-[9px] font-bold bg-purple-100 text-purple-800 px-1.5 rounded">Scenario 1</span>
+              </div>
+              <div id="walkmeStepIndicator" class="text-[10px] text-[#626F86] font-semibold">Step 1 of 5</div>
+            </div>
+          </div>
+
+          <!-- Position Flip, Minimize, Close -->
+          <div class="flex items-center gap-1">
+            <button onclick="toggleWalkmeDockPosition()" class="p-1 rounded text-[#626F86] hover:text-[#172B4D] hover:bg-[#F4F5F7]" title="Flip Dock Side (Left/Right)">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+            </button>
+            <button onclick="minimizeWalkme(true)" class="p-1 rounded text-[#626F86] hover:text-[#172B4D] hover:bg-[#F4F5F7]" title="Minimize to pill">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3 Structured Guidance Cards -->
+        <div class="space-y-2 text-xs">
+          <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
+            <div class="flex items-center gap-1 font-bold text-[#172B4D] text-[10px] mb-0.5">
+              <span class="text-[#0C66E4]">✦</span> WHAT HAPPENED
+            </div>
+            <p id="walkmeWhat" class="text-[#44546F] text-[11px] leading-relaxed">Sprint 14 is active with 11 stories.</p>
+          </div>
+
+          <div class="bg-amber-50/70 border border-amber-200 rounded-lg p-2.5">
+            <div class="flex items-center gap-1 font-bold text-amber-900 text-[10px] mb-0.5">
+              <span>💡</span> WHY IT MATTERS
+            </div>
+            <p id="walkmeWhy" class="text-amber-900/90 text-[11px] leading-relaxed">Ad-hoc changes break finished work without visibility.</p>
+          </div>
+
+          <div class="bg-purple-50/70 border border-purple-200 rounded-lg p-2.5">
+            <div class="flex items-center gap-1 font-bold text-[#6E5DC6] text-[10px] mb-0.5">
+              <span>🎯</span> TARGET ACTION
+            </div>
+            <p id="walkmeNext" class="text-[#44546F] text-[11px] leading-relaxed">Click Confluence to inspect FR-3.</p>
+          </div>
+        </div>
+
+        <!-- Dual Action Footer: Click it yourself OR "Do it for me" -->
+        <div class="pt-3 mt-2 border-t border-[#DCDFE4] flex items-center justify-between gap-2">
+          <button onclick="resetCurrentScenario()" class="text-[11px] text-[#626F86] hover:text-[#172B4D] underline">
+            Reset
+          </button>
+          
+          <div class="flex items-center gap-1.5">
+            <button id="walkmeDoItForMeBtn" onclick="executeCurrentStepAction()" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-white bg-[#6E5DC6] hover:bg-[#5B47B8] shadow-xs flex items-center gap-1 transition-all">
+              <span>⚡ Do it for me</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Docked Pill Mode -->
+      <div id="walkmeDockedPill" onclick="minimizeWalkme(false)" class="hidden cursor-pointer pointer-events-auto bg-[#6E5DC6] hover:bg-[#5B47B8] text-white px-3.5 py-2 rounded-full shadow-floating flex items-center gap-2 border border-purple-300 transition-all transform hover:scale-105">
+        <span class="text-xs">🤖</span>
+        <span class="text-xs font-bold">WITTO Guide</span>
+        <span id="dockedStepBadge" class="text-[10px] bg-white/20 px-1.5 py-0.2 rounded font-mono">Step 1/5</span>
+        <span class="text-[10px] text-purple-200">&uarr;</span>
+      </div>
+
+    </div>
+
+    <!-- WITTO AI SLIDE-OVER DRAWER -->
+    <div id="drawerBackdrop" onclick="closeWittoDrawer()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 hidden transition-opacity"></div>
+    <aside id="wittoDrawer" class="fixed top-0 right-0 bottom-0 w-full max-w-2xl bg-white shadow-floating z-50 transform translate-x-full transition-transform duration-300 flex flex-col border-l border-[#DCDFE4]">
+      <div class="px-5 py-3.5 border-b border-[#DCDFE4] flex items-center justify-between bg-gradient-to-r from-purple-50 via-white to-white">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-[#6E5DC6] flex items-center justify-center text-white shadow-xs">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><polygon points="12 2, 21 7.5, 21 16.5, 12 22, 3 16.5, 3 7.5" stroke="white" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#00C7E6"/></svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-[#172B4D]">WITTO Product Intelligence Engine</h3>
+            <p id="drawerSubtitle" class="text-[11px] text-[#626F86]">Multi-Agent Conversion &amp; Reprioritization</p>
+          </div>
+        </div>
+        <button onclick="closeWittoDrawer()" class="p-1 rounded text-[#626F86] hover:text-[#172B4D]">✕</button>
+      </div>
+
+      <div id="drawerContentMount" class="flex-1 overflow-y-auto p-5 space-y-5">
+        <!-- Injected dynamically -->
+      </div>
+
+      <div id="drawerFooterMount" class="p-4 border-t border-[#DCDFE4] bg-[#F7F8F9] flex items-center justify-between">
+        <!-- Buttons injected dynamically -->
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- FLOATING TOAST -->
+  <div id="toastNotification" class="fixed top-14 left-1/2 -translate-x-1/2 bg-[#172B4D] text-white text-xs px-4 py-2.5 rounded-lg shadow-floating flex items-center gap-2 z-50 transform -translate-y-6 opacity-0 pointer-events-none transition-all duration-200">
+    <span id="toastIcon">ℹ️</span>
+    <span id="toastText">Message</span>
+  </div>
+
+  <!-- ======================================================================
+       APPLICATION JAVASCRIPT STATE & CONTROLLERS
+       ====================================================================== -->
+  <script>
+    /* Genuine Jira Icons */
+    const ICONS = {
+      story: `<svg class="w-3.5 h-3.5 inline-block shrink-0" viewBox="0 0 16 16" fill="none" title="Story"><rect width="16" height="16" rx="2.5" fill="#36B37E"/><path d="M4.5 3.5C4.5 3.22386 4.72386 3 5 3H11C11.2761 3 11.5 3.22386 11.5 3.5V13L8 10.5L4.5 13V3.5Z" fill="white"/></svg>`,
+      bug: `<svg class="w-3.5 h-3.5 inline-block shrink-0" viewBox="0 0 16 16" fill="none" title="Bug"><rect width="16" height="16" rx="2.5" fill="#E5493A"/><circle cx="8" cy="8" r="3" fill="white"/><line x1="8" y1="2.5" x2="8" y2="4.5" stroke="white" stroke-width="1.2"/><line x1="8" y1="11.5" x2="8" y2="13.5" stroke="white" stroke-width="1.2"/><line x1="2.5" y1="8" x2="4.5" y2="8" stroke="white" stroke-width="1.2"/><line x1="11.5" y1="8" x2="13.5" y2="8" stroke="white" stroke-width="1.2"/></svg>`,
+      task: `<svg class="w-3.5 h-3.5 inline-block shrink-0" viewBox="0 0 16 16" fill="none" title="Task"><rect width="16" height="16" rx="2.5" fill="#4BADE8"/><path d="M4.8 8.2L7 10.4L11.5 5.8" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      epic: `<svg class="w-3.5 h-3.5 inline-block shrink-0" viewBox="0 0 16 16" fill="none" title="Epic"><rect width="16" height="16" rx="2.5" fill="#904EE2"/><path d="M8.8 2.5L4.5 9H8L7.2 13.5L11.5 7H8L8.8 2.5Z" fill="white"/></svg>`
+    };
+
+    /* App Global State */
+    let activeScenario = 1; // 1 or 2
+    let activeView = 'board'; // 'board', 'backlog', 'roadmap', 'confluence_sprint', 'confluence_roadmap', 'log'
+    let currentStep = 1;
+    let isEditingFR3 = false;
+    let isWittoDrawerOpen = false;
+
+    /* SCENARIO 1 DATA (Sprint Agility) */
+    const S1_OLD_TEXT = 'If payment fails, allow the customer one retry with the same card.';
+    const S1_NEW_TEXT = 'If payment fails, allow up to 3 retries and offer UPI or a wallet as fallback.';
+    let s1CurrentFR3 = S1_OLD_TEXT;
+
+    let S1_ISSUES = [
+      { id: 'APX-101', t: 'Render multi-currency checkout summary and fees', ty: 'story', p: 3, st: 'done', fr: 'FR-1', c: 'BILLING', a: 'Pavitra' },
+      { id: 'APX-102', t: 'Process dual-factor card payment with 3-D Secure', ty: 'story', p: 8, st: 'done', fr: 'FR-2', c: 'PAYMENTS', a: 'Jean' },
+      { id: 'APX-103', t: 'Execute single retry trigger after card rejection', ty: 'story', p: 3, st: 'done', fr: 'FR-3', c: 'PAYMENTS', a: 'Jean' },
+      { id: 'APX-104', t: 'Dispatch real-time transaction webhook & email', ty: 'story', p: 2, st: 'done', fr: 'FR-4', c: 'CORE', a: 'Pavitra' },
+      { id: 'APX-105', t: 'Display localized receipt breakdown and GSTIN', ty: 'story', p: 3, st: 'done', fr: 'FR-4', c: 'PAYMENTS', a: 'Haripriya' },
+      { id: 'APX-106', t: 'Tokenize and store saved customer payment cards', ty: 'story', p: 5, st: 'prog', fr: 'FR-5', c: 'SECURITY', a: 'Pavitra' },
+      { id: 'APX-107', t: 'Payment decline modal copy (hardcoded 1 retry)', ty: 'task', p: 3, st: 'prog', fr: 'FR-3', c: 'PAYMENTS', a: 'Haripriya' },
+      { id: 'APX-108', t: 'Dynamic discount voucher verification hook', ty: 'story', p: 5, st: 'todo', fr: 'FR-6', c: 'BILLING', a: 'Pavitra', r: 6, i: 1, cf: 0.8, e: 5, m: 1.0 },
+      { id: 'APX-109', t: 'Bug: Duplicate authorization on network retry timeout', ty: 'bug', p: 3, st: 'todo', fr: 'FR-3', c: 'PAYMENTS', a: 'Jean', r: 9, i: 3, cf: 0.9, e: 3, m: 1.2 },
+      { id: 'APX-110', t: 'Enable instant guest checkout without registration', ty: 'story', p: 8, st: 'todo', fr: 'FR-8', c: 'CORE', a: 'Pavitra', r: 7, i: 2, cf: 0.6, e: 8, m: 1.0 },
+      { id: 'APX-111', t: 'Generate signed digital invoice PDF for business accounts', ty: 'story', p: 5, st: 'todo', fr: 'FR-7', c: 'BILLING', a: 'Jean', r: 3, i: 1, cf: 0.8, e: 5, m: 1.0 }
+    ];
+
+    const S1_NEW_DRAFTS = [
+      { id: 'NEW-A', t: 'Orchestrate up to 3 automatic payment retries with idempotency', ty: 'story', p: 5, fr: 'FR-3', c: 'PAYMENTS', a: 'Jean', r: 9, i: 2, cf: 0.8, e: 5, m: 1.2, nw: 1 },
+      { id: 'NEW-B', t: 'Present UPI deep-link and wallet fallback on card decline', ty: 'story', p: 8, fr: 'FR-9', c: 'PAYMENTS', a: 'Haripriya', r: 12, i: 3, cf: 0.7, e: 8, m: 1.2, nw: 1 },
+      { id: 'NEW-C', t: 'Enforce fraud rate-limits and card lockout after 3 failures', ty: 'task', p: 3, fr: 'FR-3', c: 'SECURITY', a: 'Pavitra', r: 9, i: 1, cf: 0.9, e: 3, m: 1.2, nw: 1 }
+    ];
+
+    let s1Ranked = [];
+    let s1Decisions = { 'APX-103': 'reopen', 'APX-102': 'retest', 'APX-105': 'regress' };
+    let s1AuditLogs = [];
+
+    /* SCENARIO 2 DATA (Strategic Roadmap & Portfolio Intelligence) */
+    const S2_COMPANY_PROFILE = {
+      industry: 'Fintech Payments & Merchant Acquiring',
+      scale: 'Series C &middot; 240 Engineers &middot; 6 Squads',
+      velocity: '120 story pts / month (~360 pts / quarter)',
+      vision: '100% Highly-Available, Zero-Downtime, RBI-Compliant Gateway Infrastructure',
+      regulations: ['RBI Card Tokenisation Directives', 'Digital Personal Data Protection (DPDP) Act 2023', 'PCI-DSS v4.0.1 Compliance Deadline Q1 2027']
+    };
+
+    // Scenario 2 Workflow flags
+    let s2PageCreated = false;
+    let s2DraftInserted = false;
+    let s2Analyzed = false;
+
+    let S2_INITIATIVES = [
+      { id: 'INIT-1', title: 'Cross-Border Multi-Currency FX Settlement Engine', problem: 'International conversion fees cause 22% cart abandonment.', capabilities: 'Real-time FX lock, multi-currency wallet ledger, SWIFT gpi integration.', quadrant: 'must_do', quarter: 'Q1', pts: 48, reach: 24, impact: 3, conf: 0.85, effort: 8, score: 7.65, moscow: 'Must Have', complexity: 'High (FX Hedging & Banking SLAs)', risk: 'High Regulatory Currency Limit', deps: 'Treasury Core v2' },
+      { id: 'INIT-2', title: 'RBI DPDP Act 2023 Consent & Redaction Vault', problem: 'Statutory mandate requires explicit PII consent & right-to-be-forgotten.', capabilities: 'Field-level tokenized redaction vault, automated audit compliance export.', quadrant: 'must_do', quarter: 'Q1', pts: 54, reach: 35, impact: 3, conf: 0.95, effort: 6, score: 16.6, moscow: 'Must Have', complexity: 'High (DB Migration & Data Sharding)', risk: 'Statutory Penalty Threat', deps: 'User Identity DB' },
+      { id: 'INIT-3', title: 'Offline QR Soundbox & Merchant POS Terminal SDK', problem: 'Tier-2/3 retail merchants require instant audio payment confirmation.', capabilities: '4G LTE Audio Soundbox firmware, Bluetooth BLE low-power pairing API.', quadrant: 'quick_wins', quarter: 'Q2', pts: 26, reach: 40, impact: 2, conf: 0.90, effort: 4, score: 18.0, moscow: 'Should Have', complexity: 'Moderate (Hardware IoT Firmware)', risk: 'Hardware Supply Chain', deps: 'NPCI UPI Switch' },
+      { id: 'INIT-4', title: 'Autonomous AI Fraud Anomaly ML Engine', problem: 'Chargeback velocity increased 14% across card-not-present transactions.', capabilities: 'Sub-40ms real-time inference model, behavioral device fingerprinting.', quadrant: 'strategic_bets', quarter: 'Q3', pts: 65, reach: 18, impact: 3, conf: 0.65, effort: 12, score: 2.92, moscow: 'Could Have', complexity: 'Very High (GPU Cluster & Feature Store)', risk: 'False Positive Chargeback Friction', deps: 'Data Streaming Pipeline' },
+      { id: 'INIT-5', title: 'Smart Multi-Acquirer Payment Failover Router', problem: 'Bank gateway outages cause sudden 40% drops in checkout authorization rate.', capabilities: 'Dynamic latency probing, automated routing switch, zero customer session drop.', quadrant: 'must_do', quarter: 'Q2', pts: 38, reach: 50, impact: 3, conf: 0.90, effort: 5, score: 27.0, moscow: 'Must Have', complexity: 'High (Stateful Gateway Multiplexer)', risk: 'Bank Gateway SLA Variances', deps: 'Transaction Orchestrator' },
+      { id: 'INIT-6', title: 'NPCI e-Mandate & UPI Recurring Subscriptions', problem: 'SaaS and OTT merchants require frictionless automated monthly rebilling.', capabilities: 'Recurring UPI AutoPay API, automated pre-debit customer notifications.', quadrant: 'quick_wins', quarter: 'Q2', pts: 24, reach: 22, impact: 2, conf: 0.85, effort: 4, score: 9.35, moscow: 'Should Have', complexity: 'Moderate (Webhook Scheduler)', risk: 'Bank Recurring Auth Failure', deps: 'Billing Scheduler' },
+      { id: 'INIT-7', title: 'Developer Portal & Zero-Trust SDK v3.0 Overhaul', problem: 'Legacy merchant integration takes 3.5 weeks of manual developer support.', capabilities: 'Self-serve sandbox simulator, OpenAPI 3.1 code generators, WebAssembly SDK.', quadrant: 'quick_wins', quarter: 'Q3', pts: 20, reach: 15, impact: 2, conf: 0.90, effort: 3, score: 9.0, moscow: 'Should Have', complexity: 'Low-Moderate (Docs & WebAssembly)', risk: 'Backward Compatibility Breaks', deps: 'Gateway Public API' },
+      { id: 'INIT-8', title: 'CBDC Digital Rupee & Crypto Sandbox Explorer', problem: 'Pilot exploration of central bank digital currency retail rails.', capabilities: 'e-Rupee token wallet integration, escrow test harness.', quadrant: 'deprioritize', quarter: 'Q4', pts: 42, reach: 5, impact: 1, conf: 0.50, effort: 10, score: 0.25, moscow: 'Won\'t Have', complexity: 'High (Experimental Protocols)', risk: 'Regulatory Ambiguity & Low Volume', deps: 'RBI Sandbox Gateway' }
+    ];
+
+    let s2StickyNotes = [
+      'PM Note: Board approved $1.2M infrastructure budget for Smart Routing in Q2.',
+      'Legal & Compliance: DPDP Act redaction vault MUST complete external cert before April 1.'
+    ];
+
+    let s2RoadmapGenerated = false;
+
+    /* ======================================================================
+       WALKME STEP DEFINITIONS FOR BOTH SCENARIOS
+       ====================================================================== */
+    const WALKME_SCENARIOS = {
+      1: [
+        {
+          what: 'Sprint 14 of <strong>ApexPay Enterprise</strong> is active with 11 issues. 8 story points are locked in progress.',
+          why: 'An enterprise client requested payment retries and UPI fallback. Uncoordinated requirement changes break finished work without anyone realizing.',
+          next: 'Click the <strong>Confluence PRD</strong> in the sidebar to inspect the source requirements.',
+          targetId: 'sideNavPrdSprint',
+          action: () => switchView('confluence_sprint')
+        },
+        {
+          what: 'This Confluence page is the single source of truth with numbered functional requirements (FR-1 through FR-5).',
+          why: 'WITTO uses requirement IDs to track code-to-spec traceability across Jira stories.',
+          next: 'Click <strong>"Edit Page"</strong> to enter Confluence edit mode.',
+          targetId: 'btnEditConfluence',
+          action: () => triggerEditFR3()
+        },
+        {
+          what: 'Requirement FR-3 is in edit mode. Currently, it allows only 1 card retry.',
+          why: 'The client requested up to 3 retries and UPI fallback. This impacts receipt screens and fraud limits.',
+          next: 'Click <strong>"✦ Insert Client Wording"</strong>, then click <strong>"Publish &amp; Run WITTO"</strong>.',
+          targetId: 'btnInsertClientWording',
+          action: () => insertClientWording()
+        },
+        {
+          what: 'WITTO ran its Creator and Validator agents. It detected broken Done work (APX-103), an open bug clash (APX-109), and ranked candidate work.',
+          why: 'As PM, you have final authority: use <strong>drag handles (⋮⋮)</strong> or <strong>▲/▼</strong> to reorder, adjust points with <strong>-/+</strong>, add rationale notes, and choose impact actions.',
+          next: 'Adjust priorities or story points, then click <strong>"Approve &amp; Apply to Sprint 14"</strong>.',
+          targetId: 'btnApplyWittoSprint',
+          action: () => applyWittoSprint()
+        },
+        {
+          what: 'Sprint 14 is synchronized in Jira! APX-103 is re-opened, validated stories are scheduled, and the PM decision is logged.',
+          why: 'Full requirement-to-code traceability achieved. No broken code shipped to QA.',
+          next: 'Click <strong>"Decision Audit Log"</strong> or switch to <strong>Scenario 2 (Strategic Roadmap)</strong>.',
+          targetId: 'sideNavLog',
+          action: () => switchView('log')
+        }
+      ],
+      2: [
+        {
+          what: 'You are in the Confluence workspace. Let\'s draft a strategic product roadmap for FY27 from scratch.',
+          why: 'PMs typically start with an empty page to outline vision, candidate initiatives, and business problems.',
+          next: 'Click <strong>"+ Create Page"</strong> to start a new strategic Confluence document.',
+          targetId: 'btnCreateRoadmapPage',
+          action: () => s2TriggerCreatePage()
+        },
+        {
+          what: 'A new blank Confluence page is ready for editing.',
+          why: 'We will draft the standard product requirements with realistic depth before running any AI scoring.',
+          next: 'Click <strong>"📝 Insert FY27 Strategic Roadmap Draft"</strong> to populate candidate initiatives.',
+          targetId: 'btnInsertRoadmapDraft',
+          action: () => s2TriggerInsertDraft()
+        },
+        {
+          what: 'The PRD now lists 8 strategic initiatives with problem statements, capabilities, and dependencies in normal format.',
+          why: 'Notice that NO MoSCoW, RICE, or 2x2 matrix is shown yet — this is a pure, clean Confluence document.',
+          next: 'Click <strong>"✦ Analyze with WITTO"</strong> to run multi-agent portfolio intelligence.',
+          targetId: 'btnRunStrategicAI',
+          action: () => runStrategicWittoAI()
+        },
+        {
+          what: 'WITTO synthesized company scale (Series C, 240 engineers), velocity (360 pts/quarter), and RBI compliance mandates.',
+          why: 'The 2x2 Value vs Effort matrix, MoSCoW, RICE scores, and regulatory risks are now revealed for PM evaluation.',
+          next: 'Drag cards between quadrants or click <strong>"Publish Plan &amp; Generate Jira Epics"</strong>.',
+          targetId: 'btnApproveRoadmap',
+          action: () => approveAndGenerateJiraRoadmap()
+        },
+        {
+          what: 'WITTO created Jira Epics with trace links and scheduled them across Q1-Q4 in Jira Roadmap!',
+          why: 'Strategic decisions made in Confluence are now executable work items with complete traceability.',
+          next: 'Inspect the <strong>Jira Roadmap Timeline</strong>.',
+          targetId: 'sideNavRoadmap',
+          action: () => switchView('roadmap')
+        }
+      ]
+    };
+
+    /* ======================================================================
+       SMART WALKME COLLISION AVOIDANCE & POSITIONING LOGIC
+       ====================================================================== */
+    let walkmeUserDragged = false;
+    let walkmeDockSide = 'right'; // 'right' or 'left'
+
+    function updateWalkmeGuide() {
+      // Clear previous spotlights
+      document.querySelectorAll('.walkme-target-spotlight').forEach(el => el.classList.remove('walkme-target-spotlight', 'radar-pulse'));
+
+      const steps = WALKME_SCENARIOS[activeScenario];
+      const s = steps[Math.min(currentStep - 1, steps.length - 1)];
+
+      document.getElementById('walkmeScenarioTag').innerText = `Scenario ${activeScenario}`;
+      document.getElementById('walkmeStepIndicator').innerText = `Step ${currentStep} of ${steps.length}`;
+      document.getElementById('dockedStepBadge').innerText = `Step ${currentStep}/${steps.length}`;
+      document.getElementById('walkmeWhat').innerHTML = s.what;
+      document.getElementById('walkmeWhy').innerHTML = s.why;
+      document.getElementById('walkmeNext').innerHTML = s.next;
+
+      const targetEl = s.targetId ? document.getElementById(s.targetId) : null;
+      if (targetEl) {
+        targetEl.classList.add('walkme-target-spotlight', 'radar-pulse');
+        // Smart dynamic repositioning if user hasn't manually dragged
+        if (!walkmeUserDragged) {
+          smartRepositionWalkme(targetEl);
+        }
+      }
+    }
+
+    function smartRepositionWalkme(targetEl) {
+      const container = document.getElementById('walkmeContainer');
+      const rect = targetEl.getBoundingClientRect();
+      const screenWidth = window.innerWidth;
+
+      // If target is on the right half, dock walkme on the left
+      if (rect.left > (screenWidth / 2)) {
+        walkmeDockSide = 'left';
+        container.style.right = 'auto';
+        container.style.left = '24px';
+      } else {
+        // Target is on left half, dock walkme on the right
+        walkmeDockSide = 'right';
+        container.style.left = 'auto';
+        container.style.right = '24px';
+      }
+      container.style.bottom = '24px';
+      container.style.top = 'auto';
+    }
+
+    function toggleWalkmeDockPosition() {
+      walkmeUserDragged = false;
+      const container = document.getElementById('walkmeContainer');
+      if (walkmeDockSide === 'right') {
+        walkmeDockSide = 'left';
+        container.style.right = 'auto';
+        container.style.left = '24px';
+      } else {
+        walkmeDockSide = 'right';
+        container.style.left = 'auto';
+        container.style.right = '24px';
+      }
+      showToast(`Docked WalkMe to ${walkmeDockSide}`, '⇄');
+    }
+
+    function minimizeWalkme(minimize) {
+      document.getElementById('walkmeCard').classList.toggle('hidden', minimize);
+      document.getElementById('walkmeDockedPill').classList.toggle('hidden', !minimize);
+    }
+
+    function executeCurrentStepAction() {
+      const steps = WALKME_SCENARIOS[activeScenario];
+      const s = steps[Math.min(currentStep - 1, steps.length - 1)];
+      if (s && s.action) {
+        s.action();
+      }
+    }
+
+    /* Draggable WalkMe implementation */
+    (function initWalkmeDraggable() {
+      const header = document.getElementById('walkmeHeader');
+      const container = document.getElementById('walkmeContainer');
+      let isDragging = false;
+      let startX, startY, initialLeft, initialTop;
+
+      header.addEventListener('mousedown', e => {
+        isDragging = true;
+        walkmeUserDragged = true;
+        const rect = container.getBoundingClientRect();
+        startX = e.clientX;
+        startY = e.clientY;
+        initialLeft = rect.left;
+        initialTop = rect.top;
+
+        container.style.left = `${initialLeft}px`;
+        container.style.top = `${initialTop}px`;
+        container.style.right = 'auto';
+        container.style.bottom = 'auto';
+      });
+
+      window.addEventListener('mousemove', e => {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        const newLeft = Math.max(10, Math.min(window.innerWidth - 380, initialLeft + dx));
+        const newTop = Math.max(10, Math.min(window.innerHeight - 200, initialTop + dy));
+        container.style.left = `${newLeft}px`;
+        container.style.top = `${newTop}px`;
+      });
+
+      window.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
+    })();
+
+    /* ======================================================================
+       SCENARIO SWITCHING & LAUNCHING
+       ====================================================================== */
+    function launchScenario(scenarioNumber) {
+      activeScenario = scenarioNumber;
+      currentStep = 1;
+      walkmeUserDragged = false;
+
+      const loader = document.getElementById('workspaceLoader');
+      const bar = document.getElementById('loaderProgressBar');
+      loader.classList.remove('hidden');
+      loader.classList.add('flex');
+
+      let pct = 20;
+      const interval = setInterval(() => {
+        pct += 25;
+        bar.style.width = pct + '%';
+        if (pct >= 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            loader.classList.add('hidden');
+            loader.classList.remove('flex');
+            document.getElementById('landingView').classList.add('hidden');
+            document.getElementById('prototypeView').classList.remove('hidden');
+            document.getElementById('prototypeView').classList.add('flex');
+
+            updateScenarioHeaderButtons();
+            if (activeScenario === 1) {
+              switchView('board');
+            } else {
+              s2PageCreated = false;
+              s2DraftInserted = false;
+              s2Analyzed = false;
+              switchView('confluence_roadmap');
+            }
+            updateWalkmeGuide();
+            showToast(`Loaded Scenario ${activeScenario}!`, '🚀');
+          }, 300);
+        }
+      }, 150);
+    }
+
+    function switchScenario(scenarioNumber) {
+      if (activeScenario === scenarioNumber) return;
+      activeScenario = scenarioNumber;
+      currentStep = 1;
+      walkmeUserDragged = false;
+      updateScenarioHeaderButtons();
+      if (activeScenario === 1) {
+        switchView('board');
+      } else {
+        s2PageCreated = false;
+        s2DraftInserted = false;
+        s2Analyzed = false;
+        switchView('confluence_roadmap');
+      }
+      updateWalkmeGuide();
+      showToast(`Switched to Scenario ${activeScenario}`, '⇄');
+    }
+
+    function updateScenarioHeaderButtons() {
+      const btn1 = document.getElementById('scenarioBtn1');
+      const btn2 = document.getElementById('scenarioBtn2');
+      if (activeScenario === 1) {
+        btn1.className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-[#6E5DC6] text-white shadow-xs';
+        btn2.className = 'px-2 py-0.5 rounded text-[11px] font-medium text-purple-900 hover:bg-purple-100';
+      } else {
+        btn2.className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-[#6E5DC6] text-white shadow-xs';
+        btn1.className = 'px-2 py-0.5 rounded text-[11px] font-medium text-purple-900 hover:bg-purple-100';
+      }
+    }
+
+    function returnToLanding() {
+      document.getElementById('prototypeView').classList.add('hidden');
+      document.getElementById('prototypeView').classList.remove('flex');
+      document.getElementById('landingView').classList.remove('hidden');
+    }
+
+    function switchApp(app) {
+      if (app === 'jira') {
+        switchView(activeScenario === 1 ? 'board' : 'roadmap');
+      } else {
+        switchView(activeScenario === 1 ? 'confluence_sprint' : 'confluence_roadmap');
+      }
+    }
+
+    function switchView(viewName) {
+      activeView = viewName;
+      const isConfluence = viewName.startsWith('confluence');
+
+      // Update top app pills
+      document.getElementById('navTabJira').className = !isConfluence 
+        ? 'px-2.5 py-1 text-xs font-bold rounded bg-white text-[#0C66E4] shadow-xs flex items-center gap-1.5 transition-all'
+        : 'px-2.5 py-1 text-xs font-semibold rounded text-[#626F86] hover:text-[#172B4D] flex items-center gap-1.5 transition-all';
+      
+      document.getElementById('navTabConfluence').className = isConfluence 
+        ? 'px-2.5 py-1 text-xs font-bold rounded bg-white text-[#0C66E4] shadow-xs flex items-center gap-1.5 transition-all'
+        : 'px-2.5 py-1 text-xs font-semibold rounded text-[#626F86] hover:text-[#172B4D] flex items-center gap-1.5 transition-all';
+
+      // Update sidebar nav items
+      ['sideNavBoard', 'sideNavBacklog', 'sideNavRoadmap', 'sideNavLog', 'sideNavPrdSprint', 'sideNavPrdRoadmap'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.className = 'w-full flex items-center gap-2 px-2.5 py-1.5 rounded font-medium text-[#44546F] hover:bg-[#091E420F]';
+      });
+
+      if (viewName === 'board') setSidebarActive('sideNavBoard');
+      else if (viewName === 'backlog') setSidebarActive('sideNavBacklog');
+      else if (viewName === 'roadmap') setSidebarActive('sideNavRoadmap');
+      else if (viewName === 'log') setSidebarActive('sideNavLog');
+      else if (viewName === 'confluence_sprint') setSidebarActive('sideNavPrdSprint');
+      else if (viewName === 'confluence_roadmap') setSidebarActive('sideNavPrdRoadmap');
+
+      // Check step advancement for Scenario 1
+      if (activeScenario === 1 && viewName === 'confluence_sprint' && currentStep === 1) {
+        currentStep = 2;
+      }
+
+      renderActiveView();
+      updateWalkmeGuide();
+    }
+
+    function setSidebarActive(id) {
+      const el = document.getElementById(id);
+      if (el) el.className = 'w-full flex items-center gap-2 px-2.5 py-1.5 rounded font-semibold text-[#0C66E4] bg-[#E9F2FF] border-l-4 border-[#0C66E4]';
+    }
+
+    /* ======================================================================
+       RENDER ACTIVE VIEW (ROBUST AND CRASH-PROOF)
+       ====================================================================== */
+    function renderActiveView() {
+      const mount = document.getElementById('prototypeCanvas');
+      if (!mount) return;
+
+      if (activeView === 'board') mount.innerHTML = renderBoardView();
+      else if (activeView === 'backlog') mount.innerHTML = renderBacklogView();
+      else if (activeView === 'roadmap') mount.innerHTML = renderRoadmapTimelineView();
+      else if (activeView === 'confluence_sprint') mount.innerHTML = renderConfluenceSprintPRD();
+      else if (activeView === 'confluence_roadmap') mount.innerHTML = renderConfluenceRoadmapPRD();
+      else if (activeView === 'log') mount.innerHTML = renderDecisionLogView();
+    }
+
+    /* 1. Jira Scrum Board (Scenario 1) */
+    function renderBoardView() {
+      const cols = [
+        { id: 'todo', title: 'TO DO' },
+        { id: 'prog', title: 'IN PROGRESS (LOCKED)' },
+        { id: 'done', title: 'DONE' }
+      ];
+
+      return `
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-[11px] font-semibold text-[#626F86]">Projects / ApexPay Enterprise / Sprint 14</div>
+              <h1 class="text-xl font-bold text-[#172B4D] tracking-tight">Active Scrum Board</h1>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded font-bold">
+                Capacity: 30 pts (8 pts In-Prog Locked)
+              </span>
+              <span class="text-xs bg-purple-50 text-purple-700 border border-purple-200 px-2 py-0.5 rounded font-bold">
+                Domain Boost: &times;1.2
+              </span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 items-start">
+            ${cols.map(col => {
+              const issues = S1_ISSUES.filter(i => i.st === col.id);
+              const pts = issues.reduce((a, b) => a + b.p, 0);
+              return `
+                <div class="bg-[#F4F5F7] rounded-lg p-2.5 min-h-[460px] flex flex-col">
+                  <div class="flex items-center justify-between mb-2 px-1">
+                    <span class="text-[11px] font-bold text-[#626F86] uppercase tracking-wider">${col.title}</span>
+                    <span class="text-[10px] font-bold text-[#626F86] bg-white px-1.5 py-0.2 rounded border border-[#DCDFE4]">${issues.length} &middot; ${pts} pts</span>
+                  </div>
+                  <div class="space-y-2 flex-1">
+                    ${issues.map(s => renderBoardCard(s)).join('')}
+                    ${issues.length === 0 ? '<div class="p-6 text-center text-xs text-[#8993A4]">No issues</div>' : ''}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderBoardCard(issue) {
+      return `
+        <div class="bg-white p-3 rounded-md border border-[#DCDFE4] shadow-xs hover:border-[#0C66E4] transition-all cursor-pointer">
+          <div class="text-xs font-semibold text-[#172B4D] leading-snug mb-1.5">${issue.t}</div>
+          <div class="flex items-center gap-1.5 mb-2">
+            <span class="text-[9px] font-bold uppercase px-1.5 py-0.2 rounded bg-slate-100 text-[#44546F] border border-slate-200">${issue.c}</span>
+            ${issue.flag ? `<span class="text-[9px] font-bold uppercase px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 border border-amber-300">${issue.flag}</span>` : ''}
+          </div>
+          <div class="flex items-center justify-between text-xs text-[#626F86] pt-1.5 border-t border-[#F4F5F7]">
+            <div class="flex items-center gap-1.5">
+              ${ICONS[issue.ty] || ICONS.story}
+              <span class="font-bold text-[11px] text-[#44546F]">${issue.id}</span>
+              <span class="text-[10px] font-mono">${issue.p} pts</span>
+            </div>
+            <span class="text-[10px] bg-purple-50 text-purple-700 font-bold px-1 rounded">${issue.a}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    /* 2. Confluence Sprint PRD (Scenario 1) */
+    function renderConfluenceSprintPRD() {
+      return `
+        <div class="max-w-3xl mx-auto space-y-4">
+          <div class="flex items-start justify-between border-b border-[#DCDFE4] pb-3">
+            <div>
+              <div class="text-xs text-[#626F86]">Spaces / ApexPay Core / Product Requirements</div>
+              <h1 class="text-2xl font-bold text-[#172B4D] tracking-tight">PRD: Core Payment Retries &amp; Error Handling</h1>
+              <div class="text-xs text-[#626F86] mt-1">Author: Ananya Iyer (Lead PM) &middot; v7.0 Published</div>
+            </div>
+            <div>
+              ${isEditingFR3 ? `
+                <button id="btnPublishConfluence" onclick="publishConfluenceFR3()" class="px-4 py-1.5 bg-[#0C66E4] hover:bg-[#0052CC] text-white text-xs font-semibold rounded shadow-xs flex items-center gap-1.5">
+                  <span>Publish &amp; Run WITTO</span>
+                </button>
+              ` : `
+                <button id="btnEditConfluence" onclick="triggerEditFR3()" class="px-3.5 py-1.5 bg-white hover:bg-[#F4F5F7] text-[#172B4D] border border-[#DCDFE4] text-xs font-semibold rounded shadow-xs flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 text-[#626F86]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                  <span>Edit Page</span>
+                </button>
+              `}
+            </div>
+          </div>
+
+          ${isEditingFR3 ? `
+            <div class="p-3 bg-purple-50 border border-purple-200 rounded-lg text-xs flex items-center justify-between">
+              <span class="text-purple-900 font-medium">Editing requirement FR-3. Click the shortcut to inject the client request.</span>
+              <button id="btnInsertClientWording" onclick="insertClientWording()" class="px-3 py-1 bg-[#6E5DC6] hover:bg-[#5B47B8] text-white font-bold text-xs rounded shadow-xs">
+                ✦ Insert Client Wording
+              </button>
+            </div>
+          ` : ''}
+
+          <div class="border border-[#DCDFE4] rounded-lg divide-y divide-[#DCDFE4] text-xs bg-white">
+            <div class="p-3 flex items-start gap-3"><span class="font-bold text-[#0C66E4] w-12">FR-1</span><div>Calculate taxes and conversion rates dynamically.</div></div>
+            <div class="p-3 flex items-start gap-3"><span class="font-bold text-[#0C66E4] w-12">FR-2</span><div>Execute 3-D Secure card authorization with acquiring banks.</div></div>
+            <div id="fr3Block" class="p-3.5 flex items-start gap-3 ${isEditingFR3 ? 'bg-purple-50/80 border-2 border-[#6E5DC6] rounded-md' : ''}">
+              <span class="font-bold text-[#6E5DC6] w-12">FR-3</span>
+              <div id="fr3Content" contenteditable="${isEditingFR3}" class="flex-1 ${isEditingFR3 ? 'bg-white p-2 rounded border border-purple-300 outline-none' : ''}">
+                ${s1CurrentFR3}
+              </div>
+            </div>
+            <div class="p-3 flex items-start gap-3"><span class="font-bold text-[#0C66E4] w-12">FR-4</span><div>Emit real-time webhooks and generate tax receipts.</div></div>
+            <div class="p-3 flex items-start gap-3"><span class="font-bold text-[#0C66E4] w-12">FR-5</span><div>Support saved tokenized payment cards compliant with RBI regulations.</div></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function triggerEditFR3() {
+      isEditingFR3 = true;
+      currentStep = 3;
+      renderActiveView();
+      updateWalkmeGuide();
+      showToast('Confluence PRD is now in Edit Mode', '✏️');
+    }
+
+    function insertClientWording() {
+      s1CurrentFR3 = S1_NEW_TEXT;
+      const el = document.getElementById('fr3Content');
+      if (el) el.innerText = S1_NEW_TEXT;
+      showToast('Client wording injected into requirement FR-3!', '✨');
+      
+      // Update WalkMe to highlight the Publish button
+      const pubBtn = document.getElementById('btnPublishConfluence');
+      if (pubBtn) {
+        pubBtn.classList.add('walkme-target-spotlight', 'radar-pulse');
+        pubBtn.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function publishConfluenceFR3() {
+      isEditingFR3 = false;
+      renderActiveView();
+      currentStep = 4;
+      updateWalkmeGuide();
+      runWittoAgentSprintPipeline();
+    }
+
+    /* 3. Confluence Strategic Roadmap PRD (Scenario 2) */
+    function renderConfluenceRoadmapPRD() {
+      // Step A: Prompt to create new page
+      if (!s2PageCreated) {
+        return `
+          <div class="max-w-2xl mx-auto py-12 text-center space-y-4">
+            <div class="w-12 h-12 bg-blue-50 text-atlassianBlue border border-blue-200 rounded-2xl flex items-center justify-center mx-auto shadow-subtle">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+            </div>
+            <div class="space-y-1">
+              <h2 class="text-xl font-bold text-[#172B4D]">Confluence Strategic Space</h2>
+              <p class="text-xs text-[#626F86]">Ready to draft the Annual Strategic Product Roadmap for ApexPay.</p>
+            </div>
+            <div class="pt-2">
+              <button id="btnCreateRoadmapPage" onclick="s2TriggerCreatePage()" class="px-5 py-2.5 bg-[#0C66E4] hover:bg-[#0052CC] text-white font-semibold text-xs rounded-lg shadow-elevated flex items-center gap-2 mx-auto transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                <span>+ Create Page (FY27 Strategic PRD)</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      // Step B: Blank page created, prompt to insert draft
+      if (!s2DraftInserted) {
+        return `
+          <div class="max-w-3xl mx-auto space-y-6">
+            <div class="flex items-center justify-between border-b border-[#DCDFE4] pb-4">
+              <div>
+                <span class="text-xs text-[#626F86]">Spaces / ApexPay Core / New Draft</span>
+                <h1 class="text-2xl font-bold text-[#172B4D] tracking-tight">Untitled Strategic PRD</h1>
+                <div class="text-xs text-amber-600 font-medium mt-0.5">&bull; Draft &middot; Unsaved</div>
+              </div>
+              <button id="btnInsertRoadmapDraft" onclick="s2TriggerInsertDraft()" class="px-4 py-2 bg-[#6E5DC6] hover:bg-[#5B47B8] text-white text-xs font-bold rounded-lg shadow-xs flex items-center gap-1.5 transition-all">
+                <span>📝 Insert FY27 Strategic Roadmap Draft</span>
+              </button>
+            </div>
+
+            <div class="p-8 border border-dashed border-[#DCDFE4] rounded-xl text-center bg-[#FAFBFC] text-xs text-[#626F86] space-y-2">
+              <p>Type "/" or click the button above to insert the draft strategic initiatives.</p>
+              <p class="text-[11px] text-[#8993A4]">Includes 8 candidate initiatives with problem statements, capabilities, and dependencies.</p>
+            </div>
+          </div>
+        `;
+      }
+
+      // Step C: High-depth standard PRD inserted (Clean document, NO MoSCoW or RICE shown yet!)
+      return `
+        <div class="max-w-4xl mx-auto space-y-6">
+          <div class="flex items-start justify-between border-b border-[#DCDFE4] pb-3">
+            <div>
+              <div class="text-xs text-[#626F86]">Spaces / ApexPay Core / Strategic Portfolio Planning</div>
+              <h1 class="text-2xl font-bold text-[#172B4D] tracking-tight">FY27 Enterprise Payments &amp; Infrastructure Strategic PRD</h1>
+              <div class="text-xs text-[#626F86] mt-1">Author: Ananya Iyer (Lead PM) &middot; Squad: Great Lakers &middot; Mentored by Prof. Vivek N.</div>
+            </div>
+            <div>
+              <button id="btnRunStrategicAI" onclick="runStrategicWittoAI()" class="px-4 py-2 bg-[#6E5DC6] hover:bg-[#5B47B8] text-white text-xs font-bold rounded-lg shadow-elevated flex items-center gap-1.5 transition-all">
+                <span>✦ Analyze with WITTO</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Enterprise Profile -->
+          <div class="bg-[#F4F5F7] border border-[#DCDFE4] rounded-xl p-4 text-xs space-y-2">
+            <div class="flex items-center justify-between font-bold text-[#172B4D]">
+              <span class="uppercase tracking-wider text-[11px] text-[#626F86]">Enterprise Calibration Parameters</span>
+              <span class="text-[10px] bg-blue-50 text-atlassianBlue font-bold px-2 py-0.5 rounded border border-blue-200">Active Fintech Profile</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+              <div class="bg-white p-2.5 rounded border border-[#DCDFE4]">
+                <span class="text-[10px] text-[#626F86] uppercase block font-semibold">Scale &amp; Team</span>
+                <span class="font-bold text-[#172B4D]">${S2_COMPANY_PROFILE.scale}</span>
+              </div>
+              <div class="bg-white p-2.5 rounded border border-[#DCDFE4]">
+                <span class="text-[10px] text-[#626F86] uppercase block font-semibold">Engineering Velocity</span>
+                <span class="font-bold text-[#172B4D]">${S2_COMPANY_PROFILE.velocity}</span>
+              </div>
+              <div class="bg-white p-2.5 rounded border border-[#DCDFE4]">
+                <span class="text-[10px] text-[#626F86] uppercase block font-semibold">Mandatory Compliance</span>
+                <span class="font-bold text-[#172B4D]">DPDP Act 2023 &middot; PCI-DSS v4.0.1</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Document Section 1: Strategic Vision -->
+          <div class="text-xs text-[#44546F] space-y-1.5">
+            <h3 class="font-bold text-sm text-[#172B4D]">1. Executive Vision &amp; Objectives</h3>
+            <p class="leading-relaxed">
+              ApexPay Enterprise aims to deliver an autonomous, zero-downtime payments core supporting global transactions, NPCI recurring e-mandates, and stringent compliance with the Digital Personal Data Protection (DPDP) Act 2023.
+            </p>
+          </div>
+
+          <!-- Document Section 2: Candidate Initiatives (Standard Confluence Table) -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="font-bold text-sm text-[#172B4D]">2. Candidate Initiatives (8 Proposed)</h3>
+              <span class="text-xs text-[#626F86]">Standard PRD Specification</span>
+            </div>
+
+            <div class="border border-[#DCDFE4] rounded-xl overflow-hidden shadow-xs bg-white text-xs divide-y divide-[#DCDFE4]">
+              ${S2_INITIATIVES.map((init, idx) => `
+                <div class="p-3.5 space-y-1.5 hover:bg-[#FAFBFC] transition-colors">
+                  <div class="flex items-center justify-between">
+                    <span class="font-bold text-[#172B4D] text-xs">
+                      ${idx + 1}. ${init.title}
+                    </span>
+                    <span class="text-[10px] font-mono font-bold bg-slate-100 px-2 py-0.5 rounded text-[#44546F]">Target: ${init.quarter}</span>
+                  </div>
+                  <div class="text-[#44546F] text-[11px] leading-relaxed">
+                    <strong>Problem:</strong> ${init.problem}
+                  </div>
+                  <div class="text-[#44546F] text-[11px] leading-relaxed">
+                    <strong>Capabilities:</strong> ${init.capabilities}
+                  </div>
+                  <div class="flex items-center gap-3 text-[10px] text-[#626F86] pt-1 border-t border-[#F4F5F7]">
+                    <span>Complexity: <strong>${init.complexity}</strong></span>
+                    <span>&bull;</span>
+                    <span>Dependencies: <strong>${init.deps}</strong></span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          ${s2Analyzed ? `
+            <!-- WITTO GENERATED STRATEGIC SECTION (REVEALED ONLY AFTER ANALYSIS) -->
+            <div class="pt-6 border-t border-[#DCDFE4] space-y-6">
+              
+              <!-- SECTION HEADER -->
+              <div class="p-3.5 bg-gradient-to-r from-purple-50 via-white to-blue-50 border border-purple-200 rounded-xl flex items-center justify-between">
+                <div>
+                  <div class="text-[10px] font-bold uppercase tracking-wider text-[#6E5DC6] flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-[#6E5DC6] animate-pulse"></span>
+                    WITTO AI Strategic Portfolio Synthesis
+                  </div>
+                  <h3 class="text-sm font-bold text-[#172B4D]">2x2 Value vs. Effort Prioritization &amp; MoSCoW Scoring</h3>
+                </div>
+                <button id="btnAddStickyNote" onclick="addStickyNote()" class="text-xs text-[#6E5DC6] hover:bg-purple-100/60 border border-purple-300 px-2.5 py-1 rounded-md font-semibold flex items-center gap-1">
+                  <span>+ Add PM Sticky Note</span>
+                </button>
+              </div>
+
+              <!-- 2x2 QUADRANT -->
+              <div id="quadrantContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                
+                <!-- MUST DO -->
+                <div class="quadrant-dropzone bg-rose-50/50 border-2 border-rose-200 rounded-xl p-3.5 min-h-[200px] flex flex-col" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'must_do')">
+                  <div class="flex items-center justify-between pb-2 mb-2 border-b border-rose-200">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2.5 h-2.5 rounded-full bg-rose-600"></span>
+                      <span class="text-xs font-bold text-rose-900 uppercase">1. MUST DO / MANDATES</span>
+                    </div>
+                    <span class="text-[10px] bg-rose-100 text-rose-800 font-bold px-1.5 py-0.2 rounded">Core</span>
+                  </div>
+                  <div class="space-y-2 flex-1">
+                    ${S2_INITIATIVES.filter(i => i.quadrant === 'must_do').map(renderInitiativeCard).join('')}
+                  </div>
+                </div>
+
+                <!-- STRATEGIC BETS -->
+                <div class="quadrant-dropzone bg-purple-50/50 border-2 border-purple-200 rounded-xl p-3.5 min-h-[200px] flex flex-col" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'strategic_bets')">
+                  <div class="flex items-center justify-between pb-2 mb-2 border-b border-purple-200">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2.5 h-2.5 rounded-full bg-purple-600"></span>
+                      <span class="text-xs font-bold text-purple-900 uppercase">2. STRATEGIC BETS</span>
+                    </div>
+                    <span class="text-[10px] bg-purple-100 text-purple-800 font-bold px-1.5 py-0.2 rounded">Growth</span>
+                  </div>
+                  <div class="space-y-2 flex-1">
+                    ${S2_INITIATIVES.filter(i => i.quadrant === 'strategic_bets').map(renderInitiativeCard).join('')}
+                  </div>
+                </div>
+
+                <!-- QUICK WINS -->
+                <div class="quadrant-dropzone bg-emerald-50/50 border-2 border-emerald-200 rounded-xl p-3.5 min-h-[200px] flex flex-col" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'quick_wins')">
+                  <div class="flex items-center justify-between pb-2 mb-2 border-b border-emerald-200">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+                      <span class="text-xs font-bold text-emerald-900 uppercase">3. QUICK WINS</span>
+                    </div>
+                    <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded">Fast Value</span>
+                  </div>
+                  <div class="space-y-2 flex-1">
+                    ${S2_INITIATIVES.filter(i => i.quadrant === 'quick_wins').map(renderInitiativeCard).join('')}
+                  </div>
+                </div>
+
+                <!-- DEPRIORITIZE -->
+                <div class="quadrant-dropzone bg-slate-100 border-2 border-slate-300 rounded-xl p-3.5 min-h-[200px] flex flex-col" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'deprioritize')">
+                  <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-300">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>
+                      <span class="text-xs font-bold text-slate-800 uppercase">4. DEPRIORITIZE / WON'T DO</span>
+                    </div>
+                    <span class="text-[10px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.2 rounded">Parked</span>
+                  </div>
+                  <div class="space-y-2 flex-1">
+                    ${S2_INITIATIVES.filter(i => i.quadrant === 'deprioritize').map(renderInitiativeCard).join('')}
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- PM Sticky Notes -->
+              <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-4 space-y-2 text-xs">
+                <div class="font-bold text-amber-900 text-xs flex items-center gap-1.5">
+                  <span>📌</span> PM Qualitative Annotations &amp; Audit Notes
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  ${s2StickyNotes.map((note, idx) => `
+                    <div class="bg-white p-2.5 rounded border border-amber-200 shadow-xs text-amber-900 flex items-start justify-between">
+                      <span>${note}</span>
+                      <button onclick="removeStickyNote(${idx})" class="text-amber-500 hover:text-amber-800 ml-1">✕</button>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+
+              <!-- Publish Plan Button -->
+              <div class="pt-4 border-t border-[#DCDFE4] flex items-center justify-between">
+                <div class="text-xs text-[#626F86]">
+                  Total Allocated Effort: <strong>${S2_INITIATIVES.filter(i => i.quadrant !== 'deprioritize').reduce((a, b) => a + b.pts, 0)} story pts</strong> (360 pts capacity)
+                </div>
+                <button id="btnApproveRoadmap" onclick="approveAndGenerateJiraRoadmap()" class="px-5 py-2.5 bg-[#6E5DC6] hover:bg-[#5B47B8] text-white text-xs font-bold rounded-lg shadow-elevated flex items-center gap-2 transition-all">
+                  <span>Publish Plan &amp; Generate Jira Epics</span>
+                  <span>&rarr;</span>
+                </button>
+              </div>
+
+            </div>
+          ` : ''}
+
+        </div>
+      `;
+    }
+
+    function s2TriggerCreatePage() {
+      s2PageCreated = true;
+      currentStep = 2;
+      renderActiveView();
+      updateWalkmeGuide();
+      showToast('Created new Confluence PRD page', '📄');
+    }
+
+    function s2TriggerInsertDraft() {
+      s2DraftInserted = true;
+      currentStep = 3;
+      renderActiveView();
+      updateWalkmeGuide();
+      showToast('Inserted 8 Strategic Initiatives Draft', '📝');
+    }
+
+    function renderInitiativeCard(item) {
+      return `
+        <div 
+          class="drag-card bg-white p-3 rounded-lg border border-[#DCDFE4] shadow-xs cursor-grab active:cursor-grabbing hover:border-[#6E5DC6] transition-all"
+          draggable="true"
+          ondragstart="handleDragStart(event, '${item.id}')"
+        >
+          <div class="flex items-start justify-between gap-1 mb-1">
+            <span class="text-xs font-bold text-[#172B4D] leading-tight">${item.title}</span>
+            <span class="text-[10px] font-mono font-bold text-[#0C66E4] shrink-0">${item.quarter}</span>
+          </div>
+          <div class="text-[10px] text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-100 mb-1.5">
+            <strong>Risk:</strong> ${item.risk}
+          </div>
+          <div class="flex items-center justify-between text-[10px] text-[#626F86] pt-1 border-t border-[#F4F5F7]">
+            <span class="font-bold text-emerald-700 bg-emerald-50 px-1.5 rounded">RICE ${item.score}</span>
+            <span class="font-bold">${item.pts} pts</span>
+            <span class="text-textMuted">${item.moscow}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    /* Drag and drop for Quadrants */
+    let draggedInitiativeId = null;
+    function handleDragStart(e, id) {
+      draggedInitiativeId = id;
+      e.dataTransfer.setData('text/plain', id);
+      e.target.classList.add('dragging');
+    }
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.currentTarget.classList.add('drag-hover');
+    }
+    function handleDragLeave(e) {
+      e.currentTarget.classList.remove('drag-hover');
+    }
+    function handleDrop(e, quadrantKey) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('drag-hover');
+      if (draggedInitiativeId) {
+        const item = S2_INITIATIVES.find(i => i.id === draggedInitiativeId);
+        if (item) {
+          item.quadrant = quadrantKey;
+          renderActiveView();
+          showToast(`Moved "${item.title}" to ${quadrantKey.replace('_', ' ').toUpperCase()}`, '⇄');
+        }
+      }
+    }
+
+    function addStickyNote() {
+      const text = prompt('Enter your PM annotation / rationale note:');
+      if (text && text.trim()) {
+        s2StickyNotes.push(`PM Note: ${text.trim()}`);
+        renderActiveView();
+        showToast('PM Sticky note attached to PRD', '📌');
+      }
+    }
+
+    function removeStickyNote(index) {
+      s2StickyNotes.splice(index, 1);
+      renderActiveView();
+    }
+
+    /* 4. Jira Roadmap Timeline View (Scenario 2) */
+    function renderRoadmapTimelineView() {
+      const quarters = ['Q1 2027', 'Q2 2027', 'Q3 2027', 'Q4 2027'];
+      const activeInitiatives = S2_INITIATIVES.filter(i => i.quadrant !== 'deprioritize');
+
+      return `
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-[11px] font-semibold text-[#626F86]">Projects / ApexPay Enterprise / Roadmap</div>
+              <h1 class="text-xl font-bold text-[#172B4D] tracking-tight">Enterprise Portfolio Roadmap</h1>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs bg-purple-50 text-purple-700 font-bold px-2.5 py-1 rounded border border-purple-200">
+                Generated by WITTO Multi-Agent Engine
+              </span>
+            </div>
+          </div>
+
+          <!-- Timeline Header -->
+          <div class="bg-white border border-[#DCDFE4] rounded-xl overflow-hidden shadow-xs">
+            <div class="grid grid-cols-12 bg-[#F4F5F7] border-b border-[#DCDFE4] text-xs font-bold text-[#626F86] p-3">
+              <div class="col-span-5 uppercase tracking-wide">Epic / Initiative</div>
+              <div class="col-span-7 grid grid-cols-4 text-center">
+                ${quarters.map(q => `<div>${q}</div>`).join('')}
+              </div>
+            </div>
+
+            <!-- Epics List -->
+            <div class="divide-y divide-[#DCDFE4] text-xs">
+              ${activeInitiatives.map((item, idx) => {
+                const qIndex = item.quarter === 'Q1' ? 0 : item.quarter === 'Q2' ? 1 : item.quarter === 'Q3' ? 2 : 3;
+                return `
+                  <div class="grid grid-cols-12 p-3 items-center hover:bg-[#F4F5F7]/60 transition-colors">
+                    <div class="col-span-5 pr-4">
+                      <div class="flex items-center gap-1.5 font-bold text-[#172B4D]">
+                        ${ICONS.epic}
+                        <span class="text-[#0C66E4]">APX-EPIC-${idx + 10}</span>
+                        <span class="truncate">${item.title}</span>
+                      </div>
+                      <div class="text-[11px] text-[#626F86] mt-0.5">
+                        ${item.pts} pts &middot; ${item.moscow} &middot; RICE ${item.score}
+                      </div>
+                    </div>
+                    <div class="col-span-7 grid grid-cols-4 items-center">
+                      <div class="${qIndex === 0 ? 'bg-purple-100 border border-purple-300 text-purple-800 font-bold p-2 rounded shadow-xs text-center truncate' : ''}">
+                        ${qIndex === 0 ? `${item.quarter} Launch` : ''}
+                      </div>
+                      <div class="${qIndex === 1 ? 'bg-blue-100 border border-blue-300 text-blue-800 font-bold p-2 rounded shadow-xs text-center truncate' : ''}">
+                        ${qIndex === 1 ? `${item.quarter} Launch` : ''}
+                      </div>
+                      <div class="${qIndex === 2 ? 'bg-emerald-100 border border-emerald-300 text-emerald-800 font-bold p-2 rounded shadow-xs text-center truncate' : ''}">
+                        ${qIndex === 2 ? `${item.quarter} Launch` : ''}
+                      </div>
+                      <div class="${qIndex === 3 ? 'bg-amber-100 border border-amber-300 text-amber-800 font-bold p-2 rounded shadow-xs text-center truncate' : ''}">
+                        ${qIndex === 3 ? `${item.quarter} Launch` : ''}
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    /* 5. Backlog View */
+    function renderBacklogView() {
+      const active = S1_ISSUES.filter(i => i.st !== 'backlog');
+      const slipped = S1_ISSUES.filter(i => i.st === 'backlog');
+      return `
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <h1 class="text-xl font-bold text-[#172B4D]">Sprint 14 Backlog</h1>
+            <span class="text-xs text-[#626F86]">${active.length} active issues</span>
+          </div>
+          <div class="border border-[#DCDFE4] rounded-lg divide-y divide-[#DCDFE4] bg-white text-xs">
+            ${active.map(s => `
+              <div class="p-2.5 px-3 flex items-center justify-between">
+                <div class="flex items-center gap-2"><span class="font-bold text-[#0C66E4]">${s.id}</span><span>${s.t}</span></div>
+                <div class="flex items-center gap-2"><span class="font-mono">${s.p} pts</span><span class="bg-slate-100 px-1.5 rounded">${s.c}</span></div>
+              </div>
+            `).join('')}
+          </div>
+
+          ${slipped.length ? `
+            <h3 class="text-xs font-bold text-rose-700 uppercase pt-2">Slipped Scope (Moved to Backlog)</h3>
+            <div class="border border-rose-200 rounded-lg divide-y divide-rose-100 bg-rose-50/40 text-xs">
+              ${slipped.map(s => `
+                <div class="p-2.5 px-3 flex items-center justify-between text-rose-900">
+                  <div class="flex items-center gap-2"><span class="font-bold">${s.id}</span><span>${s.t}</span></div>
+                  <span class="text-[10px] font-bold bg-rose-100 px-2 py-0.5 rounded">Slipped</span>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    /* 6. Decision Log View */
+    function renderDecisionLogView() {
+      return `
+        <div class="max-w-3xl mx-auto space-y-4">
+          <div class="flex items-center justify-between border-b border-[#DCDFE4] pb-3">
+            <div>
+              <div class="text-xs text-[#626F86]">Traceability History</div>
+              <h1 class="text-xl font-bold text-[#172B4D]">Decision Audit Log</h1>
+            </div>
+            <span class="text-xs bg-purple-50 text-purple-700 px-2.5 py-1 rounded font-bold border border-purple-200">Gate 2 Verified</span>
+          </div>
+          <div class="space-y-3">
+            ${s1AuditLogs.length ? s1AuditLogs.map(log => `
+              <div class="p-4 bg-white border border-[#DCDFE4] rounded-lg space-y-2 text-xs">
+                <div class="flex justify-between font-bold text-[#172B4D]">
+                  <span>${log.time}</span>
+                  <span class="text-purple-700">PM Ananya Iyer</span>
+                </div>
+                <div class="p-2.5 bg-[#F4F5F7] rounded text-[#44546F] leading-relaxed font-mono text-[11px]">${log.text}</div>
+              </div>
+            `).join('') : '<div class="p-8 text-center text-xs text-[#8993A4]">No decisions logged yet.</div>'}
+          </div>
+        </div>
+      `;
+    }
+
+    /* ======================================================================
+       WITTO AI DRAWER EXECUTION LOGIC (SPRINT & STRATEGIC)
+       ====================================================================== */
+    function openWittoDrawer() {
+      document.getElementById('wittoDrawer').classList.remove('translate-x-full');
+      document.getElementById('drawerBackdrop').classList.remove('hidden');
+      isWittoDrawerOpen = true;
+    }
+
+    function closeWittoDrawer() {
+      document.getElementById('wittoDrawer').classList.add('translate-x-full');
+      document.getElementById('drawerBackdrop').classList.add('hidden');
+      isWittoDrawerOpen = false;
+    }
+
+    /* Scenario 1 Multi-Agent Pipeline */
+    let sprintDragSourceIdx = null;
+
+    function handleImpactDecision(id, val) {
+      s1Decisions[id] = val;
+      showToast(`Updated action for ${id}: ${val}`, '⚙️');
+    }
+
+    function runWittoAgentSprintPipeline() {
+      openWittoDrawer();
+      document.getElementById('drawerSubtitle').innerText = 'Scenario 1 · Mid-Sprint Delta Analyzer';
+      const mount = document.getElementById('drawerContentMount');
+      const footer = document.getElementById('drawerFooterMount');
+
+      mount.innerHTML = `
+        <div class="space-y-4 text-center py-6">
+          <div class="w-10 h-10 mx-auto rounded-full bg-purple-100 flex items-center justify-center text-brandPurple animate-spin">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" class="opacity-75"></path></svg>
+          </div>
+          <div class="text-xs font-bold text-[#172B4D]">Running Multi-Agent Sprint Conversion Pipeline</div>
+          <p class="text-[11px] text-[#626F86]">Creator Agent converting FR-3 · Validator Agent executing 8-point check · Impact Analyzer scanning Done work...</p>
+        </div>
+      `;
+      footer.innerHTML = `<span class="text-xs text-[#626F86]">Evaluating...</span>`;
+
+      setTimeout(() => {
+        const todo = S1_ISSUES.filter(i => i.st === 'todo');
+        s1Ranked = [
+          ...todo.map(i => ({ ...i, pmNote: '' })),
+          ...S1_NEW_DRAFTS.map(i => ({ ...i, pmNote: '' }))
+        ].sort((a, b) => {
+          const scA = (a.r * a.i * a.cf / a.p * a.m);
+          const scB = (b.r * b.i * b.cf / b.p * b.m);
+          return scB - scA;
+        });
+
+        renderSprintDrawerDashboard();
+      }, 900);
+    }
+
+    function renderSprintDrawerDashboard() {
+      const mount = document.getElementById('drawerContentMount');
+      const footer = document.getElementById('drawerFooterMount');
+
+      let accumulated = 0;
+      const capacity = 22; // 30 minus 8 locked in-prog
+      s1Ranked.forEach(s => {
+        if (accumulated + s.p <= capacity) {
+          accumulated += s.p;
+          s.fits = true;
+        } else {
+          s.fits = false;
+        }
+      });
+
+      const totalUsedOverall = accumulated + 8;
+      const progressPercent = Math.min(100, Math.round((totalUsedOverall / 30) * 100));
+      const inProgPercent = Math.round((8 / 30) * 100);
+      const freeRemaining = Math.max(0, capacity - accumulated);
+
+      mount.innerHTML = `
+        <div class="space-y-5 text-xs">
+          <!-- Requirement Diff -->
+          <div class="p-3 bg-[#F4F5F7] border border-[#DCDFE4] rounded-lg">
+            <div class="font-bold text-[#172B4D] mb-1">Requirement Diff Detected (FR-3)</div>
+            <div class="font-mono text-[11px] space-y-1">
+              <div class="text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded line-through">- ${S1_OLD_TEXT}</div>
+              <div class="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-semibold">+ ${s1CurrentFR3}</div>
+            </div>
+            <div class="text-[10px] text-purple-700 font-bold mt-1.5 flex items-center gap-1">
+              <span>✦</span> Auto-extracted requirement <strong>FR-9</strong> (UPI &amp; Wallet fallback)
+            </div>
+          </div>
+
+          <!-- Completed Stories Impact Table -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-bold text-[#172B4D] uppercase text-[11px]">Completed Stories Affected (Done Work Scanned)</span>
+              <span class="text-[10px] text-[#626F86]">PM Decision Gate</span>
+            </div>
+            <div class="border border-[#DCDFE4] rounded-lg overflow-hidden divide-y divide-[#DCDFE4] bg-white">
+              <div class="p-2.5 flex items-center justify-between gap-3">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-bold text-[#0C66E4]">APX-103</span>
+                    <span class="text-[#172B4D] truncate font-medium">Single retry trigger</span>
+                    <span class="text-[9px] font-bold bg-rose-100 text-rose-800 px-1.5 py-0.2 rounded">Direct</span>
+                  </div>
+                  <div class="text-[10px] text-rose-700 mt-0.5">Built from FR-3 which changed (1 &rarr; 3 retries)</div>
+                </div>
+                <select onchange="handleImpactDecision('APX-103', this.value)" class="border border-[#DCDFE4] rounded px-2 py-1 text-xs bg-white text-[#172B4D] font-medium outline-none">
+                  <option value="reopen" ${s1Decisions['APX-103'] === 'reopen' ? 'selected' : ''}>Re-open in Sprint 14</option>
+                  <option value="followup" ${s1Decisions['APX-103'] === 'followup' ? 'selected' : ''}>Create Follow-up Story</option>
+                  <option value="retest" ${s1Decisions['APX-103'] === 'retest' ? 'selected' : ''}>Review &amp; Re-test</option>
+                  <option value="none" ${s1Decisions['APX-103'] === 'none' ? 'selected' : ''}>No Action (Keep Done)</option>
+                </select>
+              </div>
+
+              <div class="p-2.5 flex items-center justify-between gap-3">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-bold text-[#0C66E4]">APX-102</span>
+                    <span class="text-[#172B4D] truncate font-medium">3-D Secure card pay</span>
+                    <span class="text-[9px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded">Dependent</span>
+                  </div>
+                  <div class="text-[10px] text-amber-800 mt-0.5">Retries re-trigger authentication flow</div>
+                </div>
+                <select onchange="handleImpactDecision('APX-102', this.value)" class="border border-[#DCDFE4] rounded px-2 py-1 text-xs bg-white text-[#172B4D] font-medium outline-none">
+                  <option value="retest" ${s1Decisions['APX-102'] === 'retest' ? 'selected' : ''}>Review &amp; Re-test</option>
+                  <option value="regress" ${s1Decisions['APX-102'] === 'regress' ? 'selected' : ''}>Regression Test Only</option>
+                  <option value="none" ${s1Decisions['APX-102'] === 'none' ? 'selected' : ''}>No Action</option>
+                </select>
+              </div>
+
+              <div class="p-2.5 flex items-center justify-between gap-3">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-bold text-[#0C66E4]">APX-105</span>
+                    <span class="text-[#172B4D] truncate font-medium">Receipt breakdown &amp; GSTIN</span>
+                    <span class="text-[9px] font-bold bg-blue-100 text-blue-800 px-1.5 py-0.2 rounded">Shared Component</span>
+                  </div>
+                  <div class="text-[10px] text-blue-800 mt-0.5">Receipt must handle retried &amp; UPI payments</div>
+                </div>
+                <select onchange="handleImpactDecision('APX-105', this.value)" class="border border-[#DCDFE4] rounded px-2 py-1 text-xs bg-white text-[#172B4D] font-medium outline-none">
+                  <option value="regress" ${s1Decisions['APX-105'] === 'regress' ? 'selected' : ''}>Regression Test</option>
+                  <option value="retest" ${s1Decisions['APX-105'] === 'retest' ? 'selected' : ''}>Review &amp; Re-test</option>
+                  <option value="none" ${s1Decisions['APX-105'] === 'none' ? 'selected' : ''}>No Action</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detected Clashes with Open Work -->
+          <div>
+            <div class="font-bold text-[#172B4D] uppercase text-[11px] mb-1.5">Detected Clashes with Open Work</div>
+            <div class="space-y-1.5">
+              <div class="p-2.5 bg-rose-50 border border-rose-200 rounded-lg text-[11px] text-rose-900 flex items-start gap-2">
+                <span class="text-rose-600 font-bold">⚠️</span>
+                <div>
+                  <strong>APX-109 (Open Bug):</strong> Duplicate charge when payment is retried. Raising retries from 1 to 3 multiplies financial exposure. <strong>WITTO ranked it #1 priority.</strong>
+                </div>
+              </div>
+              <div class="p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-900 flex items-start gap-2">
+                <span class="text-amber-600 font-bold">🔒</span>
+                <div>
+                  <strong>APX-107 (In Progress):</strong> Error banner copy states "one retry". In-progress work is <strong>locked (8 pts)</strong> and will not be auto-moved; flagged for PM review.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Sprint Capacity Meter -->
+          <div class="bg-white border border-[#DCDFE4] rounded-lg p-3 space-y-2">
+            <div class="flex justify-between items-center text-[11px]">
+              <div>
+                <span class="font-bold text-[#172B4D]">Sprint 14 Capacity: 30 Story Points</span>
+                <span class="text-[#626F86] ml-1">(8 pts In-Prog Locked + 22 pts Available)</span>
+              </div>
+              <div class="font-mono font-bold text-[#172B4D]">
+                ${accumulated}/22 pts used <span class="text-textMuted">(${freeRemaining} pts free)</span>
+              </div>
+            </div>
+
+            <!-- Multi-segment visual bar -->
+            <div class="w-full h-3 bg-[#F4F5F7] rounded-full overflow-hidden border border-[#DCDFE4] flex">
+              <div style="width: ${inProgPercent}%" class="bg-[#44546F] h-full" title="Locked In-Progress: 8 pts"></div>
+              <div style="width: ${Math.round((accumulated / 30) * 100)}%" class="bg-[#6E5DC6] h-full transition-all duration-300" title="Ranked Work Allocated: ${accumulated} pts"></div>
+            </div>
+
+            <div class="flex items-center justify-between text-[10px] text-[#626F86] pt-0.5">
+              <div class="flex items-center gap-3">
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#44546F]"></span> 8 pts Locked</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#6E5DC6]"></span> ${accumulated} pts Scheduled</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#E2E5EA]"></span> ${freeRemaining} pts Available</span>
+              </div>
+              <span class="font-semibold text-purple-700">${s1Ranked.filter(x => x.fits).length} in sprint &middot; ${s1Ranked.filter(x => !x.fits).length} slipping</span>
+            </div>
+          </div>
+
+          <!-- Re-prioritised Sprint List with Drag, Reorder, Points Stepper & PM Notes -->
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <div>
+                <span class="font-bold text-[#172B4D] uppercase text-[11px]">Dynamic RICE Ranking &amp; Sprint Re-order</span>
+                <p class="text-[10px] text-[#626F86]">Drag handles <strong>(⋮⋮)</strong> or use <strong>▲/▼</strong> to reorder. Adjust points with <strong>-/+</strong>.</p>
+              </div>
+              <span class="text-[10px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
+                Payments Boost: &times;1.2
+              </span>
+            </div>
+
+            <div class="space-y-1.5">
+              ${s1Ranked.map((item, idx) => {
+                const sc = +((item.r * item.i * item.cf / item.p) * item.m).toFixed(2);
+                const isFirstSlipping = !item.fits && (idx === 0 || s1Ranked[idx - 1].fits);
+
+                return `
+                  ${isFirstSlipping ? `
+                    <div class="my-2 py-1.5 px-3 bg-rose-50 border-y-2 border-dashed border-rose-400 text-center font-bold text-rose-700 text-[10px] uppercase flex items-center justify-center gap-1.5 shadow-xs">
+                      <span>✂ CAPACITY CUT-OFF LINE</span>
+                      <span>&middot;</span>
+                      <span>Items below slip out of Sprint 14 to Backlog</span>
+                    </div>
+                  ` : ''}
+
+                  <div 
+                    class="sprint-drag-item p-2.5 rounded-lg border transition-all ${item.fits ? 'bg-white border-[#DCDFE4] shadow-xs' : 'bg-[#FAFBFC] border-dashed border-[#DCDFE4] text-[#8993A4]'}"
+                    draggable="true"
+                    ondragstart="handleSprintDragStart(event, ${idx})"
+                    ondragover="handleSprintDragOver(event, ${idx})"
+                    ondragleave="handleSprintDragLeave(event)"
+                    ondrop="handleSprintDrop(event, ${idx})"
+                  >
+                    <div class="flex items-center gap-2">
+                      <!-- Drag Handle -->
+                      <div class="drag-handle p-1 text-slate-400 hover:text-purple-600 rounded hover:bg-purple-50" title="Drag to reorder story">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                          <circle cx="8" cy="5" r="1.5"/><circle cx="16" cy="5" r="1.5"/>
+                          <circle cx="8" cy="12" r="1.5"/><circle cx="16" cy="12" r="1.5"/>
+                          <circle cx="8" cy="19" r="1.5"/><circle cx="16" cy="19" r="1.5"/>
+                        </svg>
+                      </div>
+
+                      <!-- Rank Badge -->
+                      <span class="w-5 text-center font-bold text-xs ${item.fits ? 'text-[#6E5DC6]' : 'text-slate-400'}">#${idx + 1}</span>
+
+                      <!-- Up/Down Reorder Buttons -->
+                      <div class="flex flex-col gap-0.5">
+                        <button onclick="moveSprintItem(${idx}, -1)" ${idx === 0 ? 'disabled class="opacity-20 cursor-not-allowed text-slate-400"' : 'class="hover:text-purple-700 hover:bg-purple-100 rounded text-slate-500"'} title="Move Up">
+                          <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h16z"/></svg>
+                        </button>
+                        <button onclick="moveSprintItem(${idx}, 1)" ${idx === s1Ranked.length - 1 ? 'disabled class="opacity-20 cursor-not-allowed text-slate-400"' : 'class="hover:text-purple-700 hover:bg-purple-100 rounded text-slate-500"'} title="Move Down">
+                          <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20l8-8H4z"/></svg>
+                        </button>
+                      </div>
+
+                      <!-- Issue Icon & Key -->
+                      <div class="flex items-center gap-1.5 shrink-0">
+                        ${ICONS[item.ty] || ICONS.story}
+                        <span class="font-bold text-xs text-[#0C66E4]">${item.id}</span>
+                      </div>
+
+                      <!-- Title & Tags -->
+                      <div class="min-w-0 flex-1">
+                        <div class="flex items-center gap-1.5 truncate">
+                          <span class="font-medium text-xs text-[#172B4D] truncate">${item.t}</span>
+                          ${item.nw ? '<span class="text-[9px] bg-purple-100 text-purple-800 font-bold px-1.5 py-0.2 rounded shrink-0">New Scope</span>' : ''}
+                          ${item.ty === 'bug' ? '<span class="text-[9px] bg-rose-100 text-rose-800 font-bold px-1.5 py-0.2 rounded shrink-0">Bug Clash</span>' : ''}
+                        </div>
+                      </div>
+
+                      <!-- Point Stepper (- / +) -->
+                      <div class="flex items-center bg-slate-100 rounded border border-slate-200 p-0.5 shrink-0" title="Adjust Story Points">
+                        <button onclick="adjustStoryPoints(${idx}, -1)" class="w-4 h-4 flex items-center justify-center rounded text-slate-600 hover:bg-white hover:text-black font-bold text-xs leading-none">-</button>
+                        <span class="font-mono font-bold text-xs px-1.5 text-[#172B4D]">${item.p} pts</span>
+                        <button onclick="adjustStoryPoints(${idx}, 1)" class="w-4 h-4 flex items-center justify-center rounded text-slate-600 hover:bg-white hover:text-black font-bold text-xs leading-none">+</button>
+                      </div>
+
+                      <!-- RICE Badge -->
+                      <span class="text-[10px] font-bold font-mono px-1.5 py-0.5 rounded shrink-0 ${item.fits ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-slate-100 text-slate-500'}" title="RICE Score = (Reach × Impact × Confidence ÷ Effort) × Multiplier">
+                        RICE ${sc}
+                      </span>
+                    </div>
+
+                    <!-- PM Inline Rationale Note -->
+                    <div class="mt-2 pt-1.5 border-t border-[#F4F5F7] flex items-center gap-2">
+                      <span class="text-[10px] text-[#626F86] shrink-0 font-medium">PM Note:</span>
+                      <input 
+                        type="text" 
+                        value="${item.pmNote || ''}" 
+                        onchange="updateStoryNote(${idx}, this.value)" 
+                        placeholder="Add PM rationale note / override reason..." 
+                        class="flex-1 text-[11px] bg-[#FAFBFC] border border-[#DCDFE4] focus:border-[#6E5DC6] focus:bg-white rounded px-2 py-0.5 text-[#172B4D] placeholder:text-[#98A2B3] outline-none transition-all"
+                      />
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+
+      footer.innerHTML = `
+        <div class="flex items-center gap-2 text-xs text-[#626F86]">
+          <span>Ready for PM Gate 2 Approval &middot; <strong>${accumulated} pts</strong> in Sprint</span>
+        </div>
+        <button id="btnApplyWittoSprint" onclick="applyWittoSprint()" class="px-5 py-2 bg-[#6E5DC6] hover:bg-[#5B47B8] text-white text-xs font-bold rounded-lg shadow-elevated flex items-center gap-1.5 transition-all">
+          <span>Approve &amp; Apply to Sprint 14</span>
+          <span>&rarr;</span>
+        </button>
+      `;
+
+      updateWalkmeGuide();
+    }
+
+    /* Drag and Drop Handlers for Scenario 1 Sprint Re-ordering */
+    function handleSprintDragStart(e, idx) {
+      sprintDragSourceIdx = idx;
+      e.dataTransfer.setData('text/plain', idx);
+      e.currentTarget.classList.add('dragging');
+    }
+
+    function handleSprintDragOver(e, idx) {
+      e.preventDefault();
+      const target = e.currentTarget;
+      target.classList.add('drag-over-top');
+    }
+
+    function handleSprintDragLeave(e) {
+      e.currentTarget.classList.remove('drag-over-top', 'drag-over-bottom');
+    }
+
+    function handleSprintDrop(e, targetIdx) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('drag-over-top', 'drag-over-bottom');
+      if (sprintDragSourceIdx === null || sprintDragSourceIdx === targetIdx) return;
+
+      const [moved] = s1Ranked.splice(sprintDragSourceIdx, 1);
+      s1Ranked.splice(targetIdx, 0, moved);
+      sprintDragSourceIdx = null;
+
+      renderSprintDrawerDashboard();
+      showToast(`Reordered "${moved.t}" to rank #${targetIdx + 1}`, '⇄');
+    }
+
+    /* Move Story Up or Down without drag */
+    function moveSprintItem(idx, dir) {
+      const newIdx = idx + dir;
+      if (newIdx < 0 || newIdx >= s1Ranked.length) return;
+      const [moved] = s1Ranked.splice(idx, 1);
+      s1Ranked.splice(newIdx, 0, moved);
+      renderSprintDrawerDashboard();
+      showToast(`Moved "${moved.t}" ${dir < 0 ? 'up' : 'down'} to rank #${newIdx + 1}`, '▲');
+    }
+
+    /* Story Points Stepper (- / +) */
+    function adjustStoryPoints(idx, delta) {
+      const item = s1Ranked[idx];
+      const next = item.p + delta;
+      if (next < 1 || next > 21) return;
+      item.p = next;
+      renderSprintDrawerDashboard();
+      showToast(`Adjusted ${item.id} effort to ${item.p} pts`, '⚖️');
+    }
+
+    /* PM Inline Rationale Note Update */
+    function updateStoryNote(idx, note) {
+      s1Ranked[idx].pmNote = note.trim();
+      showToast(`Saved PM note for ${s1Ranked[idx].id}`, '📝');
+    }
+
+    function applyWittoSprint() {
+      // Reopen APX-103 if selected
+      const apx103 = S1_ISSUES.find(i => i.id === 'APX-103');
+      if (apx103) {
+        const dec103 = s1Decisions['APX-103'] || 'reopen';
+        if (dec103 === 'reopen') {
+          apx103.st = 'todo';
+          apx103.flag = 'Re-opened by PM';
+          apx103.p = 2;
+        } else if (dec103 === 'followup') {
+          apx103.flag = 'Follow-up Drafted';
+        } else if (dec103 === 'retest') {
+          apx103.flag = 'Re-test Scheduled';
+        }
+      }
+
+      // Handle APX-102 and APX-105 flags
+      const apx102 = S1_ISSUES.find(i => i.id === 'APX-102');
+      if (apx102 && s1Decisions['APX-102'] !== 'none') {
+        apx102.flag = s1Decisions['APX-102'] === 'regress' ? 'Regression Test' : 'Re-test Required';
+      }
+
+      const apx105 = S1_ISSUES.find(i => i.id === 'APX-105');
+      if (apx105 && s1Decisions['APX-105'] !== 'none') {
+        apx105.flag = s1Decisions['APX-105'] === 'regress' ? 'Regression Test' : 'Re-test Required';
+      }
+
+      // Add new items and update status based on dynamic capacity fit
+      s1Ranked.forEach((r, idx) => {
+        if (r.nw) {
+          S1_ISSUES.push({
+            ...r,
+            id: `APX-${112 + idx}`,
+            st: r.fits ? 'todo' : 'backlog',
+            flag: r.fits ? 'New Scope' : 'Slipped'
+          });
+        } else {
+          const orig = S1_ISSUES.find(i => i.id === r.id);
+          if (orig) {
+            orig.st = r.fits ? 'todo' : 'backlog';
+            orig.p = r.p; // Persist any adjusted story points
+            if (r.pmNote) orig.pmNote = r.pmNote;
+          }
+        }
+      });
+
+      const fitCount = s1Ranked.filter(x => x.fits).length;
+      const slipCount = s1Ranked.filter(x => !x.fits).length;
+      const totalAllocated = s1Ranked.filter(x => x.fits).reduce((a, b) => a + b.p, 0);
+
+      s1AuditLogs.unshift({
+        time: new Date().toLocaleTimeString() + ', Today',
+        text: `PM Gate 2 approved FR-3 delta with custom adjustments. ${fitCount} stories scheduled in Sprint 14 (${totalAllocated} pts allocated, 8 pts locked in-prog). ${slipCount} items slipped to backlog. Actions on Done work: APX-103 (${s1Decisions['APX-103']}), APX-102 (${s1Decisions['APX-102']}), APX-105 (${s1Decisions['APX-105']}). PM Notes and story points recorded.`
+      });
+
+      closeWittoDrawer();
+      switchView('board');
+      triggerConfettiEffect();
+      currentStep = 5;
+      updateWalkmeGuide();
+      showToast('Sprint 14 updated with PM adjustments and Gate 2 decision logged!', '🎉');
+    }
+
+    /* Scenario 2 Strategic Multi-Agent Execution */
+    function runStrategicWittoAI() {
+      openWittoDrawer();
+      document.getElementById('drawerSubtitle').innerText = 'Scenario 2 &middot; Strategic Portfolio & Regulatory Modeler';
+      const mount = document.getElementById('drawerContentMount');
+      const footer = document.getElementById('drawerFooterMount');
+
+      mount.innerHTML = `
+        <div class="space-y-4 py-4 text-xs">
+          <div class="text-center pb-2">
+            <div class="w-10 h-10 mx-auto rounded-full bg-purple-100 flex items-center justify-center text-brandPurple animate-spin mb-2">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" class="opacity-75"></path></svg>
+            </div>
+            <div class="font-bold text-[#172B4D]">Running Strategic Portfolio Intelligence</div>
+            <p class="text-[11px] text-[#626F86]">Evaluating 8 candidate initiatives against Series C scale and RBI DPDP constraints...</p>
+          </div>
+
+          <div class="space-y-2">
+            <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded text-emerald-900">
+              ✓ <strong>Regulatory Audit:</strong> Flagged DPDP Act 2023 Consent Vault as non-negotiable statutory requirement for Q1 2027.
+            </div>
+            <div class="p-2.5 bg-purple-50 border border-purple-200 rounded text-purple-900">
+              ✓ <strong>Velocity Calibration:</strong> 6 squads &times; 60 pts = 360 pts/quarter capacity. Allocated: 270 pts. Feasibility 100%.
+            </div>
+            <div class="p-2.5 bg-blue-50 border border-blue-200 rounded text-blue-900">
+              ✓ <strong>MoSCoW Scoring:</strong> Automated 2x2 Quadrant mapping synthesized for PM review.
+            </div>
+          </div>
+        </div>
+      `;
+
+      footer.innerHTML = `
+        <button onclick="s2CompleteAnalysis()" class="px-4 py-2 bg-[#6E5DC6] text-white text-xs font-bold rounded shadow-xs ml-auto">
+          View Synthesized 2x2 Matrix &amp; Timeline
+        </button>
+      `;
+    }
+
+    function s2CompleteAnalysis() {
+      s2Analyzed = true;
+      closeWittoDrawer();
+      switchView('confluence_roadmap');
+      currentStep = 4;
+      updateWalkmeGuide();
+      showToast('WITTO Strategic Portfolio Synthesis complete!', '✨');
+    }
+
+    function approveAndGenerateJiraRoadmap() {
+      s2RoadmapGenerated = true;
+      switchView('roadmap');
+      triggerConfettiEffect();
+      currentStep = 5;
+      updateWalkmeGuide();
+      showToast('Roadmap approved! Epics generated in Jira Roadmap.', '🎉');
+    }
+
+    function resetCurrentScenario() {
+      if (activeScenario === 1) {
+        s1CurrentFR3 = S1_OLD_TEXT;
+        isEditingFR3 = false;
+        currentStep = 1;
+        switchView('board');
+        showToast('Scenario 1 reset to initial state', '↺');
+      } else {
+        s2PageCreated = false;
+        s2DraftInserted = false;
+        s2Analyzed = false;
+        s2RoadmapGenerated = false;
+        currentStep = 1;
+        switchView('confluence_roadmap');
+        showToast('Scenario 2 reset to initial state', '↺');
+      }
+      updateWalkmeGuide();
+    }
+
+    /* Confetti particle animation */
+    function triggerConfettiEffect() {
+      const canvas = document.getElementById('confettiCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const particles = [];
+      const colors = ['#6E5DC6', '#0C66E4', '#1F845A', '#FFAB00', '#00C7E6'];
+
+      for (let i = 0; i < 70; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height / 2,
+          vx: (Math.random() - 0.5) * 14,
+          vy: (Math.random() - 0.7) * 16,
+          size: Math.random() * 7 + 3,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          opacity: 1
+        });
+      }
+
+      function anim() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let active = false;
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.35;
+          p.opacity -= 0.015;
+          if (p.opacity > 0) {
+            active = true;
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = Math.max(0, p.opacity);
+            ctx.fillRect(p.x, p.y, p.size, p.size);
+          }
+        });
+        if (active) requestAnimationFrame(anim);
+        else ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      anim();
+    }
+
+    /* Toast Notification Helper */
+    function showToast(text, icon = 'ℹ️') {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastIcon').innerText = icon;
+      document.getElementById('toastText').innerText = text;
+      toast.classList.remove('opacity-0', '-translate-y-6', 'pointer-events-none');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', '-translate-y-6', 'pointer-events-none');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
