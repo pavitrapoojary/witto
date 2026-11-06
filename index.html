@@ -110,6 +110,7 @@
       from {
         stroke-dashoffset: 24;
       }
+
       to {
         stroke-dashoffset: 0;
       }
@@ -126,14 +127,17 @@
         opacity: 0;
         transform: scale(0.6);
       }
+
       20% {
         opacity: 1;
         transform: scale(1);
       }
+
       80% {
         opacity: 1;
         transform: scale(1);
       }
+
       100% {
         left: 92%;
         opacity: 0;
@@ -153,14 +157,17 @@
         opacity: 0;
         transform: scale(0.6);
       }
+
       20% {
         opacity: 1;
         transform: scale(1);
       }
+
       80% {
         opacity: 1;
         transform: scale(1);
       }
+
       100% {
         left: 92%;
         opacity: 0;
@@ -175,10 +182,13 @@
     }
 
     @keyframes wittoHubBreathing {
-      0%, 100% {
+
+      0%,
+      100% {
         box-shadow: 0 4px 14px rgba(110, 93, 198, 0.08), 0 1px 3px rgba(9, 30, 66, 0.04);
         border-color: rgba(110, 93, 198, 0.35);
       }
+
       50% {
         box-shadow: 0 10px 28px rgba(110, 93, 198, 0.16), 0 2px 6px rgba(110, 93, 198, 0.08);
         border-color: rgba(110, 93, 198, 0.6);
@@ -189,13 +199,28 @@
       animation: wittoHubBreathing 4s ease-in-out infinite;
     }
 
-    /* Mascot Float & Blink Animations */
+    /* Animated Mascot from assets/mascot.png */
     @keyframes mascotFloat {
-      0%, 100% {
+
+      0%,
+      100% {
         transform: translateY(0px) rotate(0deg);
       }
+
       50% {
-        transform: translateY(-6px) rotate(1.2deg);
+        transform: translateY(-8px) rotate(1.5deg);
+      }
+    }
+
+    @keyframes mascotPulseAura {
+
+      0%,
+      100% {
+        filter: drop-shadow(0 14px 28px rgba(110, 93, 198, 0.22)) drop-shadow(0 4px 10px rgba(9, 30, 66, 0.08));
+      }
+
+      50% {
+        filter: drop-shadow(0 22px 42px rgba(110, 93, 198, 0.38)) drop-shadow(0 6px 16px rgba(9, 30, 66, 0.12));
       }
     }
 
@@ -203,17 +228,14 @@
       animation: mascotFloat 4s ease-in-out infinite;
     }
 
-    @keyframes mascotBlink {
-      0%, 46%, 54%, 100% {
-        transform: scaleY(1);
-      }
-      50% {
-        transform: scaleY(0.12);
-      }
+    .mascot-image-animated {
+      animation: mascotFloat 4s ease-in-out infinite, mascotPulseAura 4s ease-in-out infinite;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
     }
 
-    .animate-mascot-blink {
-      animation: mascotBlink 4.5s ease-in-out infinite;
+    .mascot-image-animated:hover {
+      transform: scale(1.06) rotate(-2deg);
+      filter: drop-shadow(0 26px 48px rgba(110, 93, 198, 0.45));
     }
 
     /* Hand-drawn Curvy Underline */
@@ -221,6 +243,7 @@
       from {
         stroke-dashoffset: 260;
       }
+
       to {
         stroke-dashoffset: 0;
       }
@@ -238,9 +261,11 @@
         transform: scaleX(0);
         opacity: 0;
       }
+
       30% {
         opacity: 1;
       }
+
       100% {
         transform: scaleX(1);
         opacity: 1;
@@ -259,6 +284,7 @@
         opacity: 0;
         transform: translateY(12px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -269,17 +295,35 @@
       animation: heroFadeIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
-    .delay-100 { animation-delay: 100ms; }
-    .delay-150 { animation-delay: 150ms; }
-    .delay-200 { animation-delay: 200ms; }
-    .delay-250 { animation-delay: 250ms; }
-    .delay-300 { animation-delay: 300ms; }
-    .delay-400 { animation-delay: 400ms; }
+    .delay-100 {
+      animation-delay: 100ms;
+    }
+
+    .delay-150 {
+      animation-delay: 150ms;
+    }
+
+    .delay-200 {
+      animation-delay: 200ms;
+    }
+
+    .delay-250 {
+      animation-delay: 250ms;
+    }
+
+    .delay-300 {
+      animation-delay: 300ms;
+    }
+
+    .delay-400 {
+      animation-delay: 400ms;
+    }
 
     /* Scenario card subtle elevation & transition */
     .scenario-interactive-card {
       transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease;
     }
+
     .scenario-interactive-card:hover {
       transform: translateY(-5px);
     }
@@ -295,17 +339,19 @@
     .pipeline-node {
       transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
     }
+
     .pipeline-node:hover {
       transform: translateY(-2px);
     }
 
     @media (prefers-reduced-motion: reduce) {
+
       .pipeline-flow-active,
       .animate-pulse-particle-1,
       .animate-pulse-particle-2,
       .witto-hub-card,
       .animate-mascot-float,
-      .animate-mascot-blink,
+      .mascot-image-animated,
       .animate-draw-underline,
       .animate-highlighter-expand,
       .animate-hero-fade-in {
@@ -314,8 +360,10 @@
         transform: none !important;
         stroke-dashoffset: 0 !important;
       }
+
       .scenario-interactive-card:hover,
-      .pipeline-node:hover {
+      .pipeline-node:hover,
+      .mascot-image-animated:hover {
         transform: none !important;
       }
     }
@@ -434,79 +482,64 @@
       </div>
 
       <!-- ======================================================================
-           WITTO INTELLIGENT MASCOT COMPANION (Desktop Left Dock)
-           Minimal, friendly, product-tech focused autonomous agent
+           WITTO ANIMATED MASCOT COMPANION (from assets/mascot.png)
            ====================================================================== -->
+      <!-- Desktop & Tablet Floating Mascot Companion -->
       <div
-        class="hidden lg:flex absolute left-2 xl:left-6 top-8 flex-col items-center gap-2.5 z-20 animate-mascot-float group cursor-pointer"
+        class="hidden md:flex absolute -left-2 lg:left-2 xl:left-8 top-2 flex-col items-center gap-2.5 z-20 group cursor-pointer"
         title="WITTO Autonomous Product Intelligence Agent">
 
-        <!-- Mascot Chassis -->
-        <div
-          class="relative w-14 h-14 rounded-2xl bg-gradient-to-b from-white to-[#F5F3FF] border-2 border-brandPurple/30 shadow-elevated flex items-center justify-center p-2 group-hover:scale-105 group-hover:border-brandPurple transition-all duration-300">
-
-          <!-- Soft glowing halo on hover -->
+        <!-- Mascot Container with Ambient Pulse Glow -->
+        <div class="relative flex items-center justify-center">
+          <!-- Soft glowing backdrop halo -->
           <div
-            class="absolute -inset-1 bg-brandPurple/15 rounded-2xl blur-md -z-10 group-hover:bg-brandPurple/30 transition-all">
+            class="absolute -inset-3 bg-gradient-to-tr from-brandPurple/25 via-atlassianBlue/20 to-transparent rounded-full blur-2xl pointer-events-none group-hover:opacity-100 opacity-75 transition-opacity">
           </div>
 
-          <!-- Chrome antenna with pulsing green telemetry LED -->
-          <div class="absolute -top-2.5 flex flex-col items-center">
-            <span class="w-2 h-2 rounded-full bg-tealSuccess animate-ping"></span>
-            <span class="w-1.5 h-1.5 rounded-full bg-tealSuccess absolute top-0.5"></span>
-            <span class="w-0.5 h-2 bg-brandPurple/40 mt-1"></span>
-          </div>
+          <!-- Large Animated Mascot Image from assets/mascot.png -->
+          <img src="assets/mascot.png" alt="WITTO AI Assistant Mascot"
+            class="w-40 h-40 lg:w-48 lg:h-48 xl:w-56 xl:h-56 object-contain mascot-image-animated select-none pointer-events-auto drop-shadow-md"
+            loading="eager" />
 
-          <!-- Visor Screen Face -->
-          <div
-            class="w-full h-full bg-[#172B4D] rounded-xl flex items-center justify-center relative overflow-hidden border border-[#253858] shadow-inner">
-            <!-- Subtle visor specular reflection -->
-            <div class="absolute -top-3 -right-3 w-8 h-8 bg-white/10 rounded-full blur-xs pointer-events-none"></div>
-
-            <!-- Glowing Visor Eyes with natural blink animation -->
-            <div class="flex items-center gap-2">
-              <span class="w-2 h-2.5 rounded-full bg-[#00A3BF] shadow-[0_0_8px_#00A3BF] animate-mascot-blink"></span>
-              <span class="w-2 h-2.5 rounded-full bg-[#00A3BF] shadow-[0_0_8px_#00A3BF] animate-mascot-blink"></span>
-            </div>
-
-            <!-- Micro Telemetry Audio/Waveform -->
-            <div class="absolute bottom-1 flex items-center gap-0.5 opacity-60">
-              <span class="w-1 h-0.5 bg-[#6E5DC6] rounded-full animate-pulse"></span>
-              <span class="w-1.5 h-0.5 bg-[#00A3BF] rounded-full"></span>
-              <span class="w-1 h-0.5 bg-[#6E5DC6] rounded-full animate-pulse"></span>
-            </div>
-          </div>
-
-          <!-- Side sensor nubs -->
-          <span class="absolute -left-1 w-1 h-3 rounded-full bg-borderStrong"></span>
-          <span class="absolute -right-1 w-1 h-3 rounded-full bg-borderStrong"></span>
+          <!-- Telemetry Live Status Dot Badge -->
+          <span class="absolute top-2 right-3 flex h-4 w-4 items-center justify-center">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tealSuccess opacity-75"></span>
+            <span
+              class="relative inline-flex rounded-full h-3 w-3 bg-tealSuccess border-2 border-white shadow-xs"></span>
+          </span>
         </div>
 
         <!-- Mascot Speech / Status Bubble -->
         <div
-          class="bg-white/95 backdrop-blur-sm border border-borderSubtle shadow-subtle rounded-xl p-2 px-2.5 text-left max-w-[145px] transition-all group-hover:shadow-elevated group-hover:border-brandPurple/40">
-          <div class="flex items-center gap-1.5 text-[10px] font-mono font-bold text-brandPurple">
-            <span class="w-1.5 h-1.5 rounded-full bg-tealSuccess animate-pulse"></span>
+          class="bg-white/95 backdrop-blur-sm border border-borderSubtle shadow-subtle rounded-xl p-2.5 px-3.5 text-left max-w-[170px] transition-all group-hover:shadow-elevated group-hover:border-brandPurple/40">
+          <div class="flex items-center gap-1.5 text-xs font-mono font-bold text-brandPurple">
+            <span class="w-2 h-2 rounded-full bg-tealSuccess animate-pulse"></span>
             <span>WITTO Agent</span>
           </div>
-          <div class="text-[10px] text-textSecondary font-medium leading-tight mt-0.5 group-hover:text-textPrimary transition-colors">
+          <div
+            class="text-[11px] text-textSecondary font-medium leading-tight mt-1 group-hover:text-textPrimary transition-colors">
             Tracing PRD specs in real time ✦
           </div>
         </div>
       </div>
 
-      <!-- Understated Tag with Compact Mascot Avatar (Mobile & Desktop) -->
+      <!-- Mobile Screen Prominent Mascot Banner (< md) -->
+      <div class="md:hidden flex items-center justify-center mb-3 animate-hero-fade-in">
+        <div class="relative flex items-center justify-center">
+          <div
+            class="absolute -inset-2 bg-gradient-to-tr from-brandPurple/25 via-atlassianBlue/15 to-transparent rounded-full blur-xl pointer-events-none">
+          </div>
+          <img src="assets/mascot.png" alt="WITTO AI Assistant Mascot"
+            class="w-32 h-32 object-contain mascot-image-animated select-none" />
+        </div>
+      </div>
+
+      <!-- Understated Tag with Mascot Avatar Image (Mobile & Desktop) -->
       <div
         class="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-white border border-borderSubtle rounded-full text-xs text-textSecondary shadow-subtle mb-6 transition-all hover:border-brandPurple/40 animate-hero-fade-in group">
-        <!-- Compact Mascot Avatar Icon -->
-        <div
-          class="w-5 h-5 rounded-md bg-[#172B4D] border border-brandPurple/40 flex items-center justify-center relative overflow-hidden shadow-xs">
-          <!-- Tiny Glowing Visor Eyes -->
-          <div class="flex items-center gap-0.5">
-            <span class="w-1 h-1 rounded-full bg-[#00A3BF] shadow-[0_0_3px_#00A3BF] animate-mascot-blink"></span>
-            <span class="w-1 h-1 rounded-full bg-[#00A3BF] shadow-[0_0_3px_#00A3BF] animate-mascot-blink"></span>
-          </div>
-        </div>
+        <!-- Compact Mascot Avatar from assets/mascot.png -->
+        <img src="assets/mascot.png" alt="WITTO Mascot"
+          class="w-7 h-7 object-contain rounded-full bg-purple-50 p-0.5 border border-brandPurple/30 shadow-xs group-hover:scale-110 transition-transform" />
         <span class="font-semibold text-textPrimary">Interactive Research Prototype</span>
         <span class="text-borderStrong">•</span>
         <span class="text-textMuted">Qualitative User Study</span>
@@ -567,15 +600,19 @@
         class="w-full bg-white border border-borderSubtle rounded-2xl shadow-elevated p-5 sm:p-6 mb-14 text-left overflow-hidden relative animate-hero-fade-in delay-250">
 
         <!-- Visual Header Bar -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-5 border-b border-borderSubtle gap-2">
+        <div
+          class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-5 border-b border-borderSubtle gap-2">
           <div class="flex items-center gap-2">
             <span class="flex h-2.5 w-2.5 relative">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tealSuccess opacity-75"></span>
+              <span
+                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tealSuccess opacity-75"></span>
               <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-tealSuccess"></span>
             </span>
-            <span class="text-xs font-mono font-bold tracking-wider uppercase text-textPrimary">Continuous Traceability Pipeline</span>
+            <span class="text-xs font-mono font-bold tracking-wider uppercase text-textPrimary">Continuous Traceability
+              Pipeline</span>
             <span class="hidden sm:inline text-borderStrong">•</span>
-            <span class="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-mono text-brandPurple bg-purple-50 px-2 py-0.5 rounded border border-purple-200 font-semibold">
+            <span
+              class="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-mono text-brandPurple bg-purple-50 px-2 py-0.5 rounded border border-purple-200 font-semibold">
               <span class="w-1.5 h-1.5 rounded-full bg-brandPurple"></span>
               Delta Event: FR-3 Payment Retries
             </span>
@@ -583,7 +620,8 @@
           <div class="flex items-center gap-2 text-[11px] font-mono text-textMuted">
             <span class="px-2 py-0.5 bg-canvas border border-borderSubtle rounded">Confluence PRD</span>
             <span>&rarr;</span>
-            <span class="px-2 py-0.5 bg-purple-50 border border-purple-200 text-brandPurple rounded font-semibold">WITTO Hub</span>
+            <span class="px-2 py-0.5 bg-purple-50 border border-purple-200 text-brandPurple rounded font-semibold">WITTO
+              Hub</span>
             <span>&rarr;</span>
             <span class="px-2 py-0.5 bg-canvas border border-borderSubtle rounded">Jira Delivery</span>
           </div>
@@ -618,7 +656,8 @@
 
               <!-- Document Context Box -->
               <div class="bg-white border border-borderSubtle rounded-lg p-2.5 mb-2.5">
-                <div class="text-[10px] font-mono uppercase text-textMuted font-bold mb-1">Doc: ApexPay Checkout Flow</div>
+                <div class="text-[10px] font-mono uppercase text-textMuted font-bold mb-1">Doc: ApexPay Checkout Flow
+                </div>
                 <div class="text-xs font-bold text-textPrimary mb-2 flex items-center gap-1.5">
                   <span class="text-brandPurple font-mono font-bold">FR-3:</span>
                   <span>Payment Gateway Retries</span>
@@ -637,14 +676,16 @@
                       <span class="w-1.5 h-1.5 rounded-full bg-tealSuccess animate-pulse"></span>
                       <span>New: 3 exponential retries</span>
                     </div>
-                    <span class="text-[9px] bg-tealSuccess text-white px-1.5 py-0.2 rounded font-bold uppercase">Delta</span>
+                    <span
+                      class="text-[9px] bg-tealSuccess text-white px-1.5 py-0.2 rounded font-bold uppercase">Delta</span>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- Card Micro Meta -->
-            <div class="pt-2.5 border-t border-borderSubtle/60 flex items-center justify-between text-[10px] text-textMuted">
+            <div
+              class="pt-2.5 border-t border-borderSubtle/60 flex items-center justify-between text-[10px] text-textMuted">
               <span class="font-mono">Numbered Spec FR-3</span>
               <span class="text-textSecondary font-medium">Just modified</span>
             </div>
@@ -722,10 +763,14 @@
                       <span class="w-1.5 h-1.5 rounded-full bg-brandPurple"></span>
                       Creator Agent
                     </span>
-                    <span class="text-[10px] font-mono text-brandPurple font-semibold bg-purple-50 px-1.5 py-0.2 rounded border border-purple-200">Drafts Story</span>
+                    <span
+                      class="text-[10px] font-mono text-brandPurple font-semibold bg-purple-50 px-1.5 py-0.2 rounded border border-purple-200">Drafts
+                      Story</span>
                   </div>
-                  <div class="text-[11px] text-textPrimary font-semibold truncate">APX-112: Exponential Retry Queue</div>
-                  <div class="text-[10px] text-textMuted">Role, goal &amp; Given/When/Then acceptance criteria extracted</div>
+                  <div class="text-[11px] text-textPrimary font-semibold truncate">APX-112: Exponential Retry Queue
+                  </div>
+                  <div class="text-[10px] text-textMuted">Role, goal &amp; Given/When/Then acceptance criteria extracted
+                  </div>
                 </div>
 
                 <!-- Validator Agent Row -->
@@ -735,7 +780,9 @@
                       <span class="w-1.5 h-1.5 rounded-full bg-tealSuccess"></span>
                       Validator Agent
                     </span>
-                    <span class="text-[10px] font-mono text-tealSuccess font-bold bg-tealLight px-1.5 py-0.2 rounded border border-teal-200">8/8 Verified ✓</span>
+                    <span
+                      class="text-[10px] font-mono text-tealSuccess font-bold bg-tealLight px-1.5 py-0.2 rounded border border-teal-200">8/8
+                      Verified ✓</span>
                   </div>
                   <div class="text-[11px] text-textPrimary font-semibold">INVEST Quality Checklist Enforced</div>
                   <div class="text-[10px] text-textMuted">Independent, Estimable &amp; Testable criteria passed</div>
@@ -748,7 +795,9 @@
                       <span class="w-1.5 h-1.5 rounded-full bg-roseAlert animate-ping"></span>
                       Impact Scanner (F2)
                     </span>
-                    <span class="text-[10px] font-mono text-roseAlert font-bold bg-white px-1.5 py-0.2 rounded border border-rose-200">Regression Conflict</span>
+                    <span
+                      class="text-[10px] font-mono text-roseAlert font-bold bg-white px-1.5 py-0.2 rounded border border-rose-200">Regression
+                      Conflict</span>
                   </div>
                   <div class="text-[11px] text-roseAlert font-bold truncate">APX-103 [Done] contract broken</div>
                   <div class="text-[10px] text-roseAlert/80">Completed idempotency key incompatible with 3x retry</div>
@@ -757,7 +806,8 @@
             </div>
 
             <!-- Card Micro Meta -->
-            <div class="pt-2.5 border-t border-borderSubtle/60 flex items-center justify-between text-[10px] text-textMuted">
+            <div
+              class="pt-2.5 border-t border-borderSubtle/60 flex items-center justify-between text-[10px] text-textMuted">
               <span class="font-mono">PM Authority at Gates 1 &amp; 2</span>
               <span class="text-tealSuccess font-semibold">Ready for Approval</span>
             </div>
@@ -840,7 +890,9 @@
                   <div class="p-1.5 rounded-md bg-purple-50/70 border border-purple-200">
                     <div class="flex items-center justify-between text-[10px]">
                       <span class="font-mono font-bold text-brandPurple">APX-112</span>
-                      <span class="font-mono bg-white px-1 rounded border border-purple-200 text-brandPurple font-semibold">8 pts • RICE 312</span>
+                      <span
+                        class="font-mono bg-white px-1 rounded border border-purple-200 text-brandPurple font-semibold">8
+                        pts • RICE 312</span>
                     </div>
                     <div class="text-[11px] text-textPrimary font-medium truncate">Payment Retry Queue (Rank #1)</div>
                   </div>
@@ -849,7 +901,9 @@
                   <div class="p-1.5 rounded-md bg-canvas border border-borderSubtle">
                     <div class="flex items-center justify-between text-[10px]">
                       <span class="font-mono font-bold text-atlassianBlue">APX-107</span>
-                      <span class="font-mono bg-blue-50 px-1 rounded border border-blue-200 text-atlassianBlue font-semibold">🔒 In-Progress</span>
+                      <span
+                        class="font-mono bg-blue-50 px-1 rounded border border-blue-200 text-atlassianBlue font-semibold">🔒
+                        In-Progress</span>
                     </div>
                     <div class="text-[11px] text-textSecondary truncate">Stripe Webhook Handler (5 pts)</div>
                   </div>
@@ -859,7 +913,9 @@
                     <div class="absolute inset-0 flex items-center">
                       <div class="w-full border-t-2 border-dashed border-rose-300"></div>
                     </div>
-                    <span class="relative px-2 bg-white text-[9px] font-mono uppercase font-bold text-roseAlert tracking-wider">30-pt Capacity Cut-Off</span>
+                    <span
+                      class="relative px-2 bg-white text-[9px] font-mono uppercase font-bold text-roseAlert tracking-wider">30-pt
+                      Capacity Cut-Off</span>
                   </div>
 
                   <!-- Story 3: Conflict Story -->
@@ -868,14 +924,16 @@
                       <span class="font-mono font-bold text-amber-700">APX-103</span>
                       <span class="font-mono bg-amber-100 text-amber-800 px-1 rounded font-semibold">Done Impact</span>
                     </div>
-                    <div class="text-[11px] text-amber-900 truncate">Idempotency Key Persistence (Regression queued)</div>
+                    <div class="text-[11px] text-amber-900 truncate">Idempotency Key Persistence (Regression queued)
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- Card Micro Meta -->
-            <div class="pt-2.5 border-t border-borderSubtle/60 flex items-center justify-between text-[10px] text-textMuted">
+            <div
+              class="pt-2.5 border-t border-borderSubtle/60 flex items-center justify-between text-[10px] text-textMuted">
               <span class="font-mono">Audit Log Recorded</span>
               <span class="text-atlassianBlue font-semibold">Sprint Calibrated</span>
             </div>
@@ -884,11 +942,13 @@
         </div>
 
         <!-- Visual Footer Closed-Loop Statement -->
-        <div class="mt-4 pt-3.5 border-t border-borderSubtle flex flex-col sm:flex-row items-center justify-between text-xs text-textSecondary gap-2">
+        <div
+          class="mt-4 pt-3.5 border-t border-borderSubtle flex flex-col sm:flex-row items-center justify-between text-xs text-textSecondary gap-2">
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-tealSuccess"></span>
             <span class="font-medium text-textPrimary">Continuous Closed-Loop Traceability:</span>
-            <span class="text-textMuted font-mono text-[11px]">Spec change in Confluence immediately verifies, catches Done regressions, and recalculates Jira sprint capacity.</span>
+            <span class="text-textMuted font-mono text-[11px]">Spec change in Confluence immediately verifies, catches
+              Done regressions, and recalculates Jira sprint capacity.</span>
           </div>
           <div class="flex items-center gap-1.5 text-[11px] text-textMuted font-mono shrink-0">
             <span class="px-2 py-0.5 rounded bg-canvas border border-borderSubtle">Zero Drift</span>
@@ -899,21 +959,28 @@
       </div>
 
       <!-- Section Title for Scenario Selectors -->
-      <div class="w-full max-w-5xl text-left mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-2 animate-hero-fade-in delay-250">
+      <div
+        class="w-full max-w-5xl text-left mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-2 animate-hero-fade-in delay-250">
         <div>
-          <div class="text-xs font-mono font-bold uppercase tracking-wider text-brandPurple mb-1">Interactive Research Scenarios</div>
-          <h2 class="text-2xl sm:text-3xl font-extrabold text-textPrimary tracking-tight">Select an Empirical Test Scenario</h2>
+          <div class="text-xs font-mono font-bold uppercase tracking-wider text-brandPurple mb-1">Interactive Research
+            Scenarios</div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-textPrimary tracking-tight">Select an Empirical Test
+            Scenario</h2>
         </div>
-        <p class="text-xs text-textMuted max-w-sm">Both scenarios run in a fully functional, simulated Atlassian workspace with interactive WalkMe companion guidance.</p>
+        <p class="text-xs text-textMuted max-w-sm">Both scenarios run in a fully functional, simulated Atlassian
+          workspace with interactive WalkMe companion guidance.</p>
       </div>
 
       <!-- DUAL SCENARIO SELECTOR CARDS -->
-      <div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6 text-left mb-14 animate-hero-fade-in delay-300">
+      <div
+        class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6 text-left mb-14 animate-hero-fade-in delay-300">
 
         <!-- Scenario 1 Card -->
         <div onclick="launchScenario(1)"
           class="scenario-interactive-card scenario-card-purple bg-white border-2 border-borderSubtle hover:border-brandPurple rounded-2xl p-6 sm:p-7 shadow-subtle hover:shadow-floating cursor-pointer flex flex-col justify-between group relative overflow-hidden">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-purple-100/50 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+          <div
+            class="absolute top-0 right-0 w-32 h-32 bg-purple-100/50 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none">
+          </div>
           <div>
             <div class="flex items-center justify-between mb-3.5">
               <span
@@ -931,15 +998,19 @@
               A mid-sprint requirement change in Confluence (FR-3 payment retries) breaks completed stories, collides
               with open bugs, and re-ranks the sprint inside a 30-pt capacity cutoff.
             </p>
-            <div class="space-y-2 text-xs text-textSecondary font-medium bg-[#FAFBFC] p-3.5 rounded-xl border border-borderSubtle mb-5">
+            <div
+              class="space-y-2 text-xs text-textSecondary font-medium bg-[#FAFBFC] p-3.5 rounded-xl border border-borderSubtle mb-5">
               <div class="flex items-center gap-2">
-                <span class="text-tealSuccess font-bold">✓</span> <span>Automated Done-story impact scan (APX-103/102/105)</span>
+                <span class="text-tealSuccess font-bold">✓</span> <span>Automated Done-story impact scan
+                  (APX-103/102/105)</span>
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-tealSuccess font-bold">✓</span> <span>Bug clash alerts + Drag-and-drop RICE re-rank</span>
+                <span class="text-tealSuccess font-bold">✓</span> <span>Bug clash alerts + Drag-and-drop RICE
+                  re-rank</span>
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-tealSuccess font-bold">✓</span> <span>30-pt sprint capacity cut-off boundary enforcement</span>
+                <span class="text-tealSuccess font-bold">✓</span> <span>30-pt sprint capacity cut-off boundary
+                  enforcement</span>
               </div>
             </div>
           </div>
@@ -949,14 +1020,17 @@
               <span>Explore Scenario 1</span>
               <span class="text-[11px] text-textMuted font-normal font-mono">• ~3 min</span>
             </span>
-            <span class="w-7 h-7 rounded-full bg-purple-50 border border-purple-200 flex items-center justify-center text-brandPurple group-hover:bg-brandPurple group-hover:text-white transition-all group-hover:translate-x-1">→</span>
+            <span
+              class="w-7 h-7 rounded-full bg-purple-50 border border-purple-200 flex items-center justify-center text-brandPurple group-hover:bg-brandPurple group-hover:text-white transition-all group-hover:translate-x-1">→</span>
           </div>
         </div>
 
         <!-- Scenario 2 Card -->
         <div onclick="launchScenario(2)"
           class="scenario-interactive-card scenario-card-blue bg-white border-2 border-borderSubtle hover:border-atlassianBlue rounded-2xl p-6 sm:p-7 shadow-subtle hover:shadow-floating cursor-pointer flex flex-col justify-between group relative overflow-hidden">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-blue-100/50 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+          <div
+            class="absolute top-0 right-0 w-32 h-32 bg-blue-100/50 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none">
+          </div>
           <div>
             <div class="flex items-center justify-between mb-3.5">
               <span
@@ -974,15 +1048,19 @@
               Create a new Confluence PRD with 8 candidate initiatives. Then let WITTO synthesize company scale (Series
               C, 240 engineers) and regulatory mandates (RBI DPDP Act) into an interactive 2x2 matrix and Jira Epics.
             </p>
-            <div class="space-y-2 text-xs text-textSecondary font-medium bg-[#FAFBFC] p-3.5 rounded-xl border border-borderSubtle mb-5">
+            <div
+              class="space-y-2 text-xs text-textSecondary font-medium bg-[#FAFBFC] p-3.5 rounded-xl border border-borderSubtle mb-5">
               <div class="flex items-center gap-2">
-                <span class="text-atlassianBlue font-bold">✦</span> <span>Clean standard PRD drafting first &rarr; then AI synthesis</span>
+                <span class="text-atlassianBlue font-bold">✦</span> <span>Clean standard PRD drafting first &rarr; then
+                  AI synthesis</span>
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-atlassianBlue font-bold">✦</span> <span>Interactive 2x2 Matrix, MoSCoW, RICE &amp; Jira Roadmap sync</span>
+                <span class="text-atlassianBlue font-bold">✦</span> <span>Interactive 2x2 Matrix, MoSCoW, RICE &amp;
+                  Jira Roadmap sync</span>
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-atlassianBlue font-bold">✦</span> <span>Calibrated against Series C scale &amp; DPDP compliance</span>
+                <span class="text-atlassianBlue font-bold">✦</span> <span>Calibrated against Series C scale &amp; DPDP
+                  compliance</span>
               </div>
             </div>
           </div>
@@ -992,47 +1070,61 @@
               <span>Explore Scenario 2</span>
               <span class="text-[11px] text-textMuted font-normal font-mono">• ~4 min</span>
             </span>
-            <span class="w-7 h-7 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-atlassianBlue group-hover:bg-atlassianBlue group-hover:text-white transition-all group-hover:translate-x-1">→</span>
+            <span
+              class="w-7 h-7 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-atlassianBlue group-hover:bg-atlassianBlue group-hover:text-white transition-all group-hover:translate-x-1">→</span>
           </div>
         </div>
 
       </div>
 
       <!-- Core Traceability Architecture Breakdown -->
-      <div class="w-full max-w-5xl bg-white border border-borderSubtle rounded-2xl p-5 sm:p-6 text-left mb-16 shadow-subtle animate-hero-fade-in delay-400">
+      <div
+        class="w-full max-w-5xl bg-white border border-borderSubtle rounded-2xl p-5 sm:p-6 text-left mb-16 shadow-subtle animate-hero-fade-in delay-400">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 text-xs gap-2">
           <div class="flex items-center gap-2">
-            <span class="font-extrabold uppercase tracking-wider text-textPrimary text-xs">End-to-End Traceability Engine</span>
+            <span class="font-extrabold uppercase tracking-wider text-textPrimary text-xs">End-to-End Traceability
+              Engine</span>
             <span class="text-borderStrong">•</span>
             <span class="text-textMuted">Closed-Loop Architecture</span>
           </div>
-          <span class="text-textMuted font-mono text-[11px]">Confluence PRD &harr; WITTO Dual-Agent &harr; Jira Software</span>
+          <span class="text-textMuted font-mono text-[11px]">Confluence PRD &harr; WITTO Dual-Agent &harr; Jira
+            Software</span>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-textSecondary mb-4">
           <div class="p-4 bg-canvas rounded-xl border border-borderSubtle transition-all hover:border-[#0C66E4]/40">
             <div class="flex items-center gap-2 mb-2">
-              <div class="w-5 h-5 rounded-md bg-blue-50 border border-blue-200 flex items-center justify-center text-atlassianBlue font-bold text-[10px]">1</div>
+              <div
+                class="w-5 h-5 rounded-md bg-blue-50 border border-blue-200 flex items-center justify-center text-atlassianBlue font-bold text-[10px]">
+                1</div>
               <span class="font-bold text-atlassianBlue">Confluence Source</span>
             </div>
-            <p class="leading-relaxed">Numbered requirements guarantee that product features have clear identities before code is built.</p>
+            <p class="leading-relaxed">Numbered requirements guarantee that product features have clear identities
+              before code is built.</p>
           </div>
           <div class="p-4 bg-purple-50/50 rounded-xl border border-purple-200 transition-all hover:border-brandPurple">
             <div class="flex items-center gap-2 mb-2">
-              <div class="w-5 h-5 rounded-md bg-purple-100 border border-purple-200 flex items-center justify-center text-brandPurple font-bold text-[10px]">2</div>
+              <div
+                class="w-5 h-5 rounded-md bg-purple-100 border border-purple-200 flex items-center justify-center text-brandPurple font-bold text-[10px]">
+                2</div>
               <span class="font-bold text-brandPurple">WITTO Multi-Agent Hub</span>
             </div>
-            <p class="leading-relaxed">Creator Agent drafts tickets, Validator checks 8-point criteria, and Impact Analyzer surfaces broken Done stories.</p>
+            <p class="leading-relaxed">Creator Agent drafts tickets, Validator checks 8-point criteria, and Impact
+              Analyzer surfaces broken Done stories.</p>
           </div>
           <div class="p-4 bg-canvas rounded-xl border border-borderSubtle transition-all hover:border-teal-400">
             <div class="flex items-center gap-2 mb-2">
-              <div class="w-5 h-5 rounded-md bg-tealLight border border-teal-200 flex items-center justify-center text-tealSuccess font-bold text-[10px]">3</div>
+              <div
+                class="w-5 h-5 rounded-md bg-tealLight border border-teal-200 flex items-center justify-center text-tealSuccess font-bold text-[10px]">
+                3</div>
               <span class="font-bold text-tealSuccess">Jira Delivery &amp; Roadmap</span>
             </div>
-            <p class="leading-relaxed">Dynamically prioritized delivery with locked in-progress work and PM decisions preserved in an audit log.</p>
+            <p class="leading-relaxed">Dynamically prioritized delivery with locked in-progress work and PM decisions
+              preserved in an audit log.</p>
           </div>
         </div>
 
-        <div class="pt-3 border-t border-borderSubtle/70 flex flex-wrap items-center justify-between text-[11px] text-textMuted gap-2">
+        <div
+          class="pt-3 border-t border-borderSubtle/70 flex flex-wrap items-center justify-between text-[11px] text-textMuted gap-2">
           <span>Key System Guarantees:</span>
           <div class="flex flex-wrap items-center gap-2 font-mono">
             <span class="px-2 py-0.5 rounded bg-canvas border border-borderSubtle">8/8 Quality Gate</span>
@@ -1061,33 +1153,69 @@
           <div class="md:col-span-4 space-y-2">
             <h4 class="font-bold text-textPrimary uppercase tracking-wider text-[11px]">The "Great Lakers" Squad</h4>
             <div class="bg-white border border-borderSubtle rounded-xl p-3 space-y-2 text-[11px] shadow-subtle">
+              <!-- Pavitra Poojary -->
               <div class="flex justify-between items-center pb-1.5 border-b border-borderSubtle/60">
                 <div class="flex items-center gap-2">
-                  <div class="w-5 h-5 rounded-full bg-purple-100 text-brandPurple font-bold flex items-center justify-center text-[10px]">HM</div>
-                  <span><strong>Haripriya M</strong></span>
+                  <div
+                    class="w-5 h-5 rounded-full bg-purple-100 text-brandPurple font-bold flex items-center justify-center text-[10px]">
+                    PP</div>
+                  <a href="https://www.linkedin.com/in/pavitra-poojary/" target="_blank" rel="noopener noreferrer"
+                    class="font-bold text-textPrimary hover:text-brandPurple hover:underline flex items-center gap-1 transition-colors group">
+                    <span>Pavitra Poojary</span>
+                    <svg class="w-3 h-3 text-[#0A66C2] opacity-80 group-hover:opacity-100 transition-opacity shrink-0"
+                      viewBox="0 0 24 24" fill="currentColor">
+                      <path
+                        d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
+                    </svg>
+                  </a>
                 </div>
-                <span class="text-textMuted font-mono">Tech Lead</span>
+                <span class="text-textMuted font-mono"></span>
               </div>
+              <!-- Haripriya M -->
               <div class="flex justify-between items-center pb-1.5 border-b border-borderSubtle/60">
                 <div class="flex items-center gap-2">
-                  <div class="w-5 h-5 rounded-full bg-blue-100 text-atlassianBlue font-bold flex items-center justify-center text-[10px]">PP</div>
-                  <span><strong>Pavitra Poojary</strong></span>
+                  <div
+                    class="w-5 h-5 rounded-full bg-blue-100 text-atlassianBlue font-bold flex items-center justify-center text-[10px]">
+                    HM</div>
+                  <a href="https://www.linkedin.com/in/haripriya-muthukumaran-b24082183/" target="_blank"
+                    rel="noopener noreferrer"
+                    class="font-bold text-textPrimary hover:text-brandPurple hover:underline flex items-center gap-1 transition-colors group">
+                    <span>Haripriya M</span>
+                    <svg class="w-3 h-3 text-[#0A66C2] opacity-80 group-hover:opacity-100 transition-opacity shrink-0"
+                      viewBox="0 0 24 24" fill="currentColor">
+                      <path
+                        d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
+                    </svg>
+                  </a>
                 </div>
-                <span class="text-textMuted font-mono">Senior UI Designer</span>
+                <span class="text-textMuted font-mono"></span>
               </div>
+              <!-- Jean Roderick A -->
               <div class="flex justify-between items-center">
                 <div class="flex items-center gap-2">
-                  <div class="w-5 h-5 rounded-full bg-tealLight text-tealSuccess font-bold flex items-center justify-center text-[10px]">JA</div>
-                  <span><strong>Jean Roderick A</strong></span>
+                  <div
+                    class="w-5 h-5 rounded-full bg-tealLight text-tealSuccess font-bold flex items-center justify-center text-[10px]">
+                    JR</div>
+                  <a href="https://www.linkedin.com/in/jean-roderick-a-a3a85a243/" target="_blank"
+                    rel="noopener noreferrer"
+                    class="font-bold text-textPrimary hover:text-tealSuccess hover:underline flex items-center gap-1 transition-colors group">
+                    <span>Jean Roderick A</span>
+                    <svg class="w-3 h-3 text-[#0A66C2] opacity-80 group-hover:opacity-100 transition-opacity shrink-0"
+                      viewBox="0 0 24 24" fill="currentColor">
+                      <path
+                        d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
+                    </svg>
+                  </a>
                 </div>
-                <span class="text-textMuted font-mono">Senior Backend Engineer</span>
+                <span class="text-textMuted font-mono"></span>
               </div>
             </div>
           </div>
 
           <div class="md:col-span-3 space-y-2">
             <h4 class="font-bold text-textPrimary uppercase tracking-wider text-[11px]">Academic Affiliation</h4>
-            <div class="text-textSecondary text-[11px] space-y-1.5 bg-white border border-borderSubtle rounded-xl p-3 shadow-subtle">
+            <div
+              class="text-textSecondary text-[11px] space-y-1.5 bg-white border border-borderSubtle rounded-xl p-3 shadow-subtle">
               <div class="font-semibold text-textPrimary">Great Lakes Institute of Management</div>
               <div class="text-textMuted font-mono">Chennai, India &middot; PGPM Class of 2027</div>
               <div class="pt-2 border-t border-borderSubtle text-textSecondary">
@@ -1345,7 +1473,9 @@
                     <circle cx="50" cy="48" r="16" fill="#FCD34D" />
                     <path d="M22 92 C22 72, 34 68, 50 68 C66 68, 78 72, 78 92 Z" fill="#4F46E5" />
                   </svg></div>
-                <span class="font-bold text-[#172B4D] truncate">Haripriya M</span>
+                <a href="https://www.linkedin.com/in/haripriya-muthukumaran-b24082183/" target="_blank"
+                  rel="noopener noreferrer" title="View Haripriya M on LinkedIn"
+                  class="font-bold text-[#172B4D] hover:text-[#6E5DC6] hover:underline truncate">Haripriya M</a>
                 <span class="text-[9px] text-purple-700 font-bold ml-auto bg-purple-50 px-1 rounded">TL</span>
               </div>
               <div class="flex items-center gap-2 p-1 rounded bg-white border border-[#DCDFE4]/60">
@@ -1358,7 +1488,9 @@
                     <circle cx="50" cy="48" r="16" fill="#FBBF24" />
                     <path d="M22 92 C22 70, 34 68, 50 68 C66 68, 78 70, 78 92 Z" fill="#059669" />
                   </svg></div>
-                <span class="font-medium text-[#172B4D] truncate">Pavitra Poojary</span>
+                <a href="https://www.linkedin.com/in/pavitra-poojary/" target="_blank" rel="noopener noreferrer"
+                  title="View Pavitra Poojary on LinkedIn"
+                  class="font-medium text-[#172B4D] hover:text-[#0C66E4] hover:underline truncate">Pavitra Poojary</a>
                 <span class="text-[9px] text-emerald-800 font-bold ml-auto bg-emerald-50 px-1 rounded">UI</span>
               </div>
               <div class="flex items-center gap-2 p-1 rounded bg-white border border-[#DCDFE4]/60">
@@ -1371,7 +1503,9 @@
                     <circle cx="50" cy="48" r="16" fill="#FCD34D" />
                     <path d="M22 92 C22 72, 34 68, 50 68 C66 68, 78 72, 78 92 Z" fill="#2563EB" />
                   </svg></div>
-                <span class="font-medium text-[#172B4D] truncate">Jean Roderick A</span>
+                <a href="https://www.linkedin.com/in/jean-roderick-a-a3a85a243/" target="_blank"
+                  rel="noopener noreferrer" title="View Jean Roderick A on LinkedIn"
+                  class="font-medium text-[#172B4D] hover:text-[#1F845A] hover:underline truncate">Jean Roderick A</a>
                 <span class="text-[9px] text-blue-700 font-bold ml-auto bg-blue-50 px-1 rounded">BE</span>
               </div>
             </div>

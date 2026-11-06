@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/mascot.png" alt="WITTO Autonomous AI Assistant" width="160" />
+</p>
+
 ```
   ██╗    ██╗██╗████████╗████████╗ ██████╗ 
   ██║    ██║██║╚══██╔══╝╚══██╔══╝██╔═══██╗
@@ -224,6 +228,8 @@ Blank Confluence ──► Insert FY27 PRD ──► Standard Spec ──► WIT
 
 ## 🤖 Smart WalkMe Companion
 
+<img align="right" src="assets/mascot.png" alt="Witto the Sprint Companion" width="130" />
+
 The walkthrough includes an intelligent, non-blocking onboarding agent ("Witto the Sprint Companion") engineered to avoid screen obstruction while guiding user testing:
 
 ```
@@ -253,35 +259,15 @@ The walkthrough includes an intelligent, non-blocking onboarding agent ("Witto t
 
 ---
 
-## 🎨 Design System & Visual Hierarchy
-
-The interface combines the precision of **Linear** with the familiarity of **Atlassian Jira and Confluence**:
-
-- **Canvas:** Warm off-white (`#F9FAFB`), clean elevated white cards (`#FFFFFF`), hairline borders (`#E2E5EA`).
-- **Color Palette:**
-  - Brand Purple: `#6E5DC6` (WITTO Intelligence)
-  - Atlassian Blue: `#0C66E4` (Jira Primaries)
-  - Deep Slate: `#172B4D` (High-contrast typography)
-  - Muted Slate: `#626F86` (Metadata and labels)
-  - Alert Red: `#E5493A` (Bugs, clashes, and capacity cutoffs)
-  - Success Teal: `#1F845A` (Validated criteria and passes)
-- **Authentic Jira Issue Icons:** Uses genuine Atlassian SVG issue types:
-  - 🟢 **Story:** Green bookmark ribbon with folded corner
-  - 🔴 **Bug:** Red circular badge with insect glyph
-  - 🔵 **Task:** Blue square with checkmark glyph
-  - 🟣 **Epic:** Purple rounded square with lightning bolt
-
----
-
 ## 👥 The "Great Lakers" Squad
 
 This prototype was conceptualized, designed, and developed as an **Empirical Research Project** by PGPM students at the **Great Lakes Institute of Management, Chennai (Class of 2027)**.
 
-| Team Member | Primary Role | Core Focus Area |
-|---|---|---|
-| **Haripriya M** | **Tech Lead** | Agent Pipeline Architecture & Traceability Engine |
-| **Pavitra Poojary** | **Senior UI Designer** | Linear & Atlassian Design System, Micro-interactions |
-| **Jean Roderick A** | **Senior Backend Engineer** | State Management, RICE Engine, Capacity Logic |
+| Team Member | Connect |
+|---|---|
+| **Pavitra Poojary** | [LinkedIn](https://www.linkedin.com/in/pavitra-poojary/) |
+| **Haripriya M** | [LinkedIn](https://www.linkedin.com/in/haripriya-muthukumaran-b24082183/) |
+| **Jean Roderick A** | [LinkedIn](https://www.linkedin.com/in/jean-roderick-a-a3a85a243/) |
 
 **Academic Mentorship:**  
 **Prof. Vivek N.**  
@@ -331,33 +317,6 @@ $$
 | **6** | Acceptance Criteria | Includes at least two testable, unambiguous criteria. |
 | **7** | Sprint Feasibility | Story points $\le 8$ (items $> 8$ points must be split into tasks). |
 | **8** | Traceability Metadata | Contains valid `FR-ID`, `Component`, and `Dependencies`. |
-
----
-
-## 🚀 Quickstart
-
-The prototype is distributed as a **zero-dependency, single-file application**. No build steps, package managers, or server installations are required.
-
-```bash
-# Clone the repository
-git clone https://github.com/great-lakers/witto-product-intelligence.git
-cd witto-product-intelligence
-
-# Option A: Open directly in your browser
-open witto-prototype.html       # macOS
-xdg-open witto-prototype.html   # Linux
-start witto-prototype.html      # Windows
-
-# Option B: Run a local static server (recommended)
-python3 -m http.server 8080
-# Navigate to: http://localhost:8080/witto-prototype.html
-```
-
-### Browser Compatibility:
-- Google Chrome 110+
-- Apple Safari 16+
-- Mozilla Firefox 115+
-- Microsoft Edge 110+
 
 ---
 
