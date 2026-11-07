@@ -1294,14 +1294,7 @@
             </svg>
           </button>
           <div class="flex items-center gap-1.5 cursor-pointer">
-            <svg class="w-4 h-4" viewBox="0 0 32 32" fill="none">
-              <path
-                d="M12.87 18.33C12.35 17.58 11.23 18.06 11.39 18.96L14.28 29.58C14.47 30.29 15.42 30.43 15.82 29.8L21.37 20.89C21.84 20.14 21.32 19.16 20.44 19.16H13.62C13.31 19.16 13.02 18.54 12.87 18.33Z"
-                fill="#0C66E4" />
-              <path
-                d="M16.51 3.52C16.14 2.8 15.08 2.85 14.78 3.6L9.34 16.7C9.02 17.47 9.69 18.29 10.51 18.17L19.26 16.92C20.08 16.8 20.49 15.84 19.98 15.2L16.51 3.52Z"
-                fill="#0052CC" />
-            </svg>
+            <img src="assets/atlassian-logo.png" alt="Atlassian" class="w-4 h-4 object-contain shrink-0" />
             <span class="font-extrabold text-[14px] tracking-tight text-[#172B4D]">Atlassian</span>
           </div>
         </div>
@@ -1310,17 +1303,12 @@
         <div class="flex items-center bg-[#F1F2F4] p-0.5 rounded-lg border border-[#DCDFE4]">
           <button id="navTabJira" onclick="switchApp('jira')"
             class="px-2.5 py-1 text-xs font-bold rounded bg-white text-[#0C66E4] shadow-xs flex items-center gap-1.5 transition-all">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L4 14h6l-2 8 10-12h-6l2-8z" />
-            </svg>
+            <img src="assets/jira-logo.png" alt="Jira" class="w-3.5 h-3.5 object-contain shrink-0" />
             Jira
           </button>
           <button id="navTabConfluence" onclick="switchApp('confluence')"
             class="px-2.5 py-1 text-xs font-semibold rounded text-[#626F86] hover:text-[#172B4D] flex items-center gap-1.5 transition-all">
-            <svg class="w-3.5 h-3.5 text-[#0C66E4]" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M14.5 10c-.83 0-1.5.67-1.5 1.5v5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5c0-.83-.67-1.5-1.5-1.5zm-5 0c-.83 0-1.5.67-1.5 1.5v5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5c0-.83-.67-1.5-1.5-1.5z" />
-            </svg>
+            <img src="assets/confluence-logo.webp" alt="Confluence" class="w-3.5 h-3.5 object-contain shrink-0" />
             Confluence
           </button>
         </div>
@@ -1797,7 +1785,7 @@
         {
           what: 'You are in the Confluence workspace. Let\'s draft a strategic product roadmap for FY27 from scratch.',
           why: 'PMs typically start with an empty page to outline vision, candidate initiatives, and business problems.',
-          next: 'Click <strong>"+ Create Page"</strong> to start a new strategic Confluence document.',
+          next: 'Click <strong>"Create Page"</strong> to start a new strategic Confluence document.',
           targetId: 'btnCreateRoadmapPage',
           action: () => s2TriggerCreatePage()
         },
@@ -2250,7 +2238,7 @@
             <div class="pt-2">
               <button id="btnCreateRoadmapPage" onclick="s2TriggerCreatePage()" class="px-5 py-2.5 bg-[#0C66E4] hover:bg-[#0052CC] text-white font-semibold text-xs rounded-lg shadow-elevated flex items-center gap-2 mx-auto transition-all">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
-                <span>+ Create Page (FY27 Strategic PRD)</span>
+                <span>Create Page (FY27 Strategic PRD)</span>
               </button>
             </div>
           </div>
